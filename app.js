@@ -1,12 +1,12 @@
 let instana = require('@instana/collector')({
-  serviceName: 'TeamDashboardService',
-  agentHost: 'worker0.instana-ocp.os.fyre.ibm.com',
+  serviceName: 'EngagementTrackerService',
+  agentHost: 'localhost',
   reportUncaughtException: true
 });
 
 let bunyan = require('bunyan');
 // Create your logger(s).
-let bunyanLogger = bunyan.createLogger({name:"TeamDashboardService"});
+let bunyanLogger = bunyan.createLogger({name:"EngagementTrackerService"});
 // Set the logger Instana should use.
 instana.setLogger(bunyanLogger);
 
