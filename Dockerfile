@@ -16,7 +16,7 @@ COPY . .
 
 RUN ng build
 
-EXPOSE 80
+EXPOSE 8080
 
 # command to run on container start
 CMD [ "node", "app.js" ]

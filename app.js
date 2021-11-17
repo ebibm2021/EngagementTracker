@@ -30,6 +30,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Set our api routes
 require('./controller/route.controller.js')(app, bunyanLogger);
 
-var server = app.listen(process.env.PORT || 80,function(){
-  console.log("App listening at 80");
+var server = app.listen(process.env.PORT || 8080,function(){
+  console.log("App listening at 8080");
 });
