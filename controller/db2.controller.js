@@ -12,7 +12,7 @@ instana.setLogger(bunyanLogger);
 
 var ibmdb = require('ibm_db');
 var util = require('./util.controller');
-var connStr = "DATABASE=ONE;HOSTNAME=9.46.67.53;PORT=50000;PROTOCOL=TCPIP;UID=db2admin;PWD=i am using db2;";
+var connStr = "DATABASE=ONE;HOSTNAME=9.46.67.53;PORT=50000;PROTOCOL=TCPIP;UID=db2inst1;PWD=i am using db2;";
 var schemaName = "db2inst1";
 
 exports.getActivity = (req, resp) => {
