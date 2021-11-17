@@ -1,0 +1,16 @@
+<div class="exchange-form-container">
+    <div style="padding-top: 20px;">
+      <input id="upload-file" type="file" (change)="readExcel($event)" class="upload input-common" required />
+      &nbsp;&nbsp;
+      <button mat-stroked-button color="primary" (click)="uploadData()">Upload Data</button>
+    </div>
+    <hr>
+    <div style="padding-top: 20px;">
+      <button mat-stroked-button color="primary" (click)="cancelDialog()">Cancel</button>
+      &nbsp;&nbsp;
+      <button mat-stroked-button color="primary" (click)="downloadTemplate()">Download Template</button>
+      &nbsp;&nbsp;
+      <button mat-stroked-button color="primary" (click)="downloadData()">Download Data</button>
+    </div>
+    <hr>
+  </div>

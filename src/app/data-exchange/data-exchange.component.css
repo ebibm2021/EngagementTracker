@@ -1,0 +1,12 @@
+.field {
+    margin: 10px;
+}
+
+.exchange-form-container {
+    text-align: center;
+}
+
+.wide-area {
+    min-width: 180px;
+    width: 80%;
+}

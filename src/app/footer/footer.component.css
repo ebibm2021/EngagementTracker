@@ -1,0 +1,17 @@
+.footer{
+    background-color: #d02670;
+    color:white;
+    font-family:  IBM Plex Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    text-align: center;
+    height: 30px;
+    display:table;
+    width: 100%;
+}
+
+.footer span {
+    display:table-cell;
+    vertical-align:middle;
+}

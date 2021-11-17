@@ -1,0 +1,127 @@
+<div>
+
+    <div fxLayout fxLayoutAlign="center center" style="text-align: center;">
+        <mat-form-field fxFlex="40%">
+            <input matInput type="text" [(ngModel)]="filterString" (keyup)="doFilter()" placeholder="Filter">
+        </mat-form-field>
+            <span style="padding: 0px 20px;">
+                <i class="fa fa-plus-circle fa-2x icon-style-2" aria-hidden="true" (click)="addEngagement()"></i>
+                <i class="fa fa-exchange fa-2x icon-style-2" aria-hidden="true" (click)="exchangeModal()"></i>
+            </span>
+    </div>
+    
+    <table mat-table [dataSource]="engagements" matSort matSortActive="lastupdatedon" matSortDirection="desc">
+
+        <ng-container matColumnDef="actions" sticky>
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element" style="background-color: lightgray;">
+                <span class="icon-style-1"><i class="fa fa-pencil-square-o" aria-hidden="true"
+                        (click)="editEngagement(element.id)"></i></span>
+                <span class="icon-style-1"><i class="fa fa-trash-o" aria-hidden="true"
+                        (click)="deleteEngagement(element.id)"></i></span>
+                <span class="icon-style-1"><i class="fa fa-list" aria-hidden="true"
+                        (click)="manageActivity(element.id)"></i></span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="opportunity" sticky>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Opportunity</th>
+            <td mat-cell *matCellDef="let element"> {{element.opportunity}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="market">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Market</th>
+            <td mat-cell *matCellDef="let element"> {{element.market}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="customer">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+            <td mat-cell *matCellDef="let element"> {{element.customer}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="seller/exec">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Seller/Exec</th>
+            <td mat-cell *matCellDef="let element"> {{element['seller/exec']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="ctp/sca">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>CTP/SCA</th>
+            <td mat-cell *matCellDef="let element"> {{element['ctp/sca']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="partner">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Partner</th>
+            <td mat-cell *matCellDef="let element"> {{element.partner}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+            <td mat-cell *matCellDef="let element"> {{element.category}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Product</th>
+            <td mat-cell *matCellDef="let element"> {{element.product}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+            <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="labsme">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Lab SME</th>
+            <td mat-cell *matCellDef="let element"> {{element.labsme}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="requestedon">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Requested On</th>
+            <td mat-cell *matCellDef="let element"> {{element.requestedon}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="completedon">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Completed On</th>
+            <td mat-cell *matCellDef="let element"> {{element.completedon}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="result">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Result</th>
+            <td mat-cell *matCellDef="let element"> {{element.result}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="effort">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Effort</th>
+            <td mat-cell *matCellDef="let element"> {{element.effort}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="comments">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Comments</th>
+            <td mat-cell *matCellDef="let element"> {{element.comments}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastupdatedon">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Updated On</th>
+            <td mat-cell *matCellDef="let element"> {{element.lastupdatedon}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="engagementCols"></tr>
+        <tr mat-row *matRowDef="let row; columns: engagementCols;"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    <!-- <div class="add-button" (click)="addEngagement()">
+        <span>
+            <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
+        </span>
+    </div> -->
+</div>

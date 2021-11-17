@@ -1,0 +1,21 @@
+.container {
+    flex-direction: column;
+    display: flex;
+    overflow: hidden;
+    height: 100%;
+}
+
+.container-header {
+    flex: 0 0 auto;
+}
+
+.container-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    border-left: 1px solid #f5c6da;
+    border-right: 1px solid #f5c6da;
+}
+
+.container-footer {
+    flex: 0 0 auto;
+}

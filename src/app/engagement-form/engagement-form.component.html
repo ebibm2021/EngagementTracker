@@ -1,0 +1,99 @@
+<div class="engagement-form-container">
+  <div>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Market</mat-label>
+      <input matInput placeholder="ISA/NA" [formControl]="engagementData.market" required>
+      <mat-error *ngIf="engagementData.market.invalid">Pass valid Market</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Customer</mat-label>
+      <input matInput placeholder="Customer Name" [formControl]="engagementData.customer" required>
+      <mat-error *ngIf="engagementData.customer.invalid">Pass valid Customer</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Opportunity</mat-label>
+      <input matInput placeholder="Opportunity" [formControl]="engagementData.opportunity" required>
+      <mat-error *ngIf="engagementData.opportunity.invalid">Pass valid Opportunity</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Seller/Exec</mat-label>
+      <input matInput placeholder="Seller/Exec" [formControl]="engagementData.sellerexec" required>
+      <mat-error *ngIf="engagementData.sellerexec.invalid">Pass valid Seller/Exec</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>CTP/SCA</mat-label>
+      <input matInput placeholder="CTP/SCA" [formControl]="engagementData.ctpsca" required>
+      <mat-error *ngIf="engagementData.ctpsca.invalid">Pass valid CTP/SCA</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Partner</mat-label>
+      <input matInput placeholder="Partner" [formControl]="engagementData.partner" required>
+      <mat-error *ngIf="engagementData.partner.invalid">Pass valid Partner</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Category</mat-label>
+      <input matInput placeholder="Category" [formControl]="engagementData.category" required>
+      <mat-error *ngIf="engagementData.category.invalid">Pass valid Category</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Product</mat-label>
+      <input matInput placeholder="Product" [formControl]="engagementData.product" required>
+      <mat-error *ngIf="engagementData.product.invalid">Pass valid Product</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Status</mat-label>
+      <input matInput placeholder="Status" [formControl]="engagementData.status" required>
+      <mat-error *ngIf="engagementData.status.invalid">Pass valid Status</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Lab SME</mat-label>
+      <input matInput placeholder="Lab SME" [formControl]="engagementData.labsme" required>
+      <mat-error *ngIf="engagementData.labsme.invalid">Pass valid Lab SME</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Result</mat-label>
+      <input matInput placeholder="Result" [formControl]="engagementData.result" required>
+      <mat-error *ngIf="engagementData.result.invalid">Result</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Effort</mat-label>
+      <input matInput type="number" placeholder="Effort" [formControl]="engagementData.effort" required>
+      <mat-error *ngIf="engagementData.effort.invalid">Pass valid Effort</mat-error>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field appearance="standard" class="field wide-area">
+      <mat-label>Description</mat-label>
+      <textarea matInput placeholder="Description" [formControl]="engagementData.description" required></textarea>
+      <mat-error *ngIf="engagementData.description.invalid">Pass valid Description</mat-error>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field appearance="standard" class="field wide-area">
+      <mat-label>Comments</mat-label>
+      <textarea matInput placeholder="Comments" [formControl]="engagementData.comments" required></textarea>
+      <mat-error *ngIf="engagementData.comments.invalid">Pass valid Comments</mat-error>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Requested On</mat-label>
+      <input matInput [matDatepicker]="picker1" [formControl]="engagementData.requestedon" required>
+      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+      <mat-datepicker #picker1></mat-datepicker>
+      <mat-error *ngIf="engagementData.requestedon.invalid">Pass valid Date</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="field">
+      <mat-label>Completed On</mat-label>
+      <input matInput [matDatepicker]="picker2" [formControl]="engagementData.completedon" required>
+      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+      <mat-datepicker #picker2></mat-datepicker>
+      <mat-error *ngIf="engagementData.completedon.invalid">Pass valid Date</mat-error>
+    </mat-form-field>
+  </div>
+  <div style="padding-top: 40px;">
+    <button mat-stroked-button color="primary" (click)="cancelDialog()">Cancel</button>
+    &nbsp;&nbsp;
+    <button mat-stroked-button color="primary" type="submit" (click)="saveEngagement()">Save</button>
+  </div>
+</div>

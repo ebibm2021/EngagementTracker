@@ -1,0 +1,8 @@
+applications:
+  - name: apelite-team-dashboard
+    host: apelite-team-dashboard
+    memory: 512M
+    command: node app.js
+    env:
+      DB2_CONN: NA
+      DB2_SCHEMA: NA

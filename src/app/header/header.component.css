@@ -1,0 +1,54 @@
+.header{
+    background-color: #d02670 !important;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-flow: wrap;
+    padding: 20px;
+  }
+  .logo_div {
+    flex: 0 0 0;
+    padding-right: 20px;
+    margin: 3px 0px;
+  }
+  .title_div {
+   flex: 1 0 0;
+   min-width: 300px;
+   display: flex; 
+   align-items: center;
+   margin: 3px 0px;
+  }
+  .header_logo{
+    height: 25px;
+  }
+  .title_div span {
+    color:white;
+    font-family:  IBM Plex Sans;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 27px;
+  }
+
+  .menu {
+    background-color:#f5c6da;
+    flex-direction: row;
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0px 10px;
+    justify-content: center;    
+}
+
+.menu-box {
+  flex: 0 0 auto;
+  padding: 8px 20px;
+}
+
+.menu-box:hover {
+  background-color:#d02670;
+  color: #f5c6da;
+  cursor: pointer;
+}
+
+.menu-box.active {
+  background-color: #f1b5cf;
+}
