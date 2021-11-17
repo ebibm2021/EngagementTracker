@@ -1,0 +1,62 @@
+-- public."ENGAGEMENT" definition
+
+-- Drop table
+
+-- DROP TABLE public."ENGAGEMENT";
+
+CREATE TABLE public."ENGAGEMENT" (
+	"ID" int4 NULL,
+	"MARKET" varchar(50) NULL,
+	"CUSTOMER" varchar(50) NULL,
+	"OPPORTUNITY" varchar(50) NULL,
+	"SELLER/EXEC" varchar(50) NULL,
+	"CTP/SCA" varchar(50) NULL,
+	"PARTNER" varchar(50) NULL,
+	"CATEGORY" varchar(50) NULL,
+	"PRODUCT" varchar(50) NULL,
+	"DESCRIPTION" varchar(50) NULL,
+	"STATUS" varchar(50) NULL,
+	"LABSME" varchar(50) NULL,
+	"REQUESTEDON" date NULL,
+	"COMPLETEDON" date NULL,
+	"RESULT" varchar(50) NULL,
+	"COMMENTS" varchar(50) NULL,
+	"EFFORT" int4 NULL
+);
+
+-- public."ACTIVITY" definition
+
+-- Drop table
+
+-- DROP TABLE public."ACTIVITY";
+
+CREATE TABLE public."ACTIVITY" (
+	"ID" int4 NULL,
+	"ACT" varchar(50) NULL,
+	"ACTEDON" date NULL,
+	"ENGAGEMENTID" int4 NULL
+);
+
+-- public.engagement_seq definition
+
+-- DROP SEQUENCE public.engagement_seq;
+
+CREATE SEQUENCE public.engagement_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 9223372036854775807
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- public.activity_seq definition
+
+-- DROP SEQUENCE public.activity_seq;
+
+CREATE SEQUENCE public.activity_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 9223372036854775807
+	START 1
+	CACHE 1
+	NO CYCLE;
