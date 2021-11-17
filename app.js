@@ -1,6 +1,6 @@
 let instana = require('@instana/collector')({
   serviceName: 'TeamDashboardService',
-  agentHost: 'localhost',
+  agentHost: '9.30.211.64',
   reportUncaughtException: true
 });
 

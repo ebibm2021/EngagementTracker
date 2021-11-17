@@ -1,0 +1,18 @@
+services:
+  engagement-tracker:
+    build: .
+    image: engagement-tracker
+    command: npm start
+    container_name: engagement-tracker
+    ports:
+    - "80:80"
+    volumes:
+    - .:/usr/src/app
+    - /usr/src/app/node_modules
+    networks:
+      - common-network
+volumes:
+  logvolume01: {}
+networks:
+  common-network:
+    driver: bridge

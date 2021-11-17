@@ -1,6 +1,6 @@
 applications:
-  - name: apelite-team-dashboard
-    host: apelite-team-dashboard
+  - name: engagement-tracker
+    host: engagement-tracker
     memory: 512M
     command: node app.js
     env:

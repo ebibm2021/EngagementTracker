@@ -8,11 +8,15 @@ ENV NODE_ENV production
 COPY package*.json ./
 
 # so we can cache this layer:
+RUN npm cache clean --force
 RUN npm install
+RUN npm install -g @angular/cli@latest
 
 COPY . .
+
+RUN ng build
 
 EXPOSE 80
 
 # command to run on container start
-CMD [ "node app.js", "./" ]
+CMD [ "node", "app.js" ]
