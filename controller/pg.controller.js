@@ -7,7 +7,7 @@ let instana = require('@instana/collector')({
 
 let bunyan = require('bunyan');
 // Create your logger(s).
-let bunyanLogger = bunyan.createLogger({name:"EngagementTrackerService"});
+let bunyanLogger = bunyan.createLogger({ name: "EngagementTrackerService" });
 // Set the logger Instana should use.
 instana.setLogger(bunyanLogger);
 
@@ -35,7 +35,7 @@ exports.getActivity = (req, resp) => {
       return console.error('Error acquiring client', err.stack)
     }
     pool.query(`SELECT * FROM  public."ACTIVITY" where "ENGAGEMENTID" = ` + engagementId + ' ;', function (err, result) {
-      release(); 
+      release();
       console.log(result)
       if (err) {
         resp.status(403).send({
@@ -46,10 +46,10 @@ exports.getActivity = (req, resp) => {
         return console.log('Error executing query', err.stack);
       }
       else {
-        if(result.rows.length>0){
+        if (result.rows.length > 0) {
           resp.status(200).send({
             info: "success",
-            data: util.convertKeyToLowerCase(data.rows[0]),
+            data: util.convertKeyToLowerCase(result.rows),
             message: "success"
           })
         } else {
@@ -103,8 +103,8 @@ exports.getEngagement = (req, resp) => {
       from public."ACTIVITY" a
     ) as ac ON ac.ENGAGEMENTID  = e."ID"
     GROUP BY e."ID";`
-    
-    bunyanLogger.info('get engagement - '+ query);
+
+    bunyanLogger.info('get engagement - ' + query);
     client.query(query, (err, result) => {
       release();
       if (err) {
@@ -127,60 +127,101 @@ exports.getEngagement = (req, resp) => {
 }
 
 exports.createEngagement = (req, resp) => {
-  const { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments } = req.body
-  var query = `INSERT INTO public."ENGAGEMENT" 
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    const { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments } = req.body
+    var query = `INSERT INTO public."ENGAGEMENT" 
     ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID")
     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('public.ENGAGEMENT_SEQ')) returning *`
 
-  pool.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
-    if (error) {
-      resp.status(403).send({
-        info: "failure",
-        data: [],
-        message: error.stack
-      })
-    }
-    console.log(JSON.stringify(results));
-    var id = 0;
-    if (results.rows.length > 0) {
-      id = results.rows[0]['ID']
-      resp.status(201).send({
-        info: "success",
-        data: results.rows[0],
-        message: "success"
-      })
-    }
-    else {
-      resp.status(403).send({
-        info: "failure",
-        data: [],
-        message: "no data"
-      })
-    }
+    bunyanLogger.info('create engagement - ' + query);
+    pool.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
+      release()
+      if (error) {
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      }
+      console.log(JSON.stringify(results));
+      var id = 0;
+      if (results.rows.length > 0) {
+        id = results.rows[0]['ID']
+        resp.status(201).send({
+          info: "success",
+          data: results.rows[0],
+          message: "success"
+        })
+      }
+      else {
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: "no data"
+        })
+      }
+    })
   })
 }
 
 exports.createActivity = (req, resp) => {
-  const { engagementid, actedon, action } = req.body
-  var query = "INSERT INTO activity" +
-    "(engagementid, actedon, action) " +
-    "VALUES($1, $2, $3)"
-  console.log(query);
-  var id = 0;
-  pool.query(query, [engagementid, actedon, action], (error, results) => {
-    if (error) {
-      throw error
+
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
     }
-    if (results.rows.length > 0) {
-      id = results.rows[0].id
-    }
-    resp.status(201).send(`Activity added with ID: ` + id)
+    const { engagementid, actedon, act } = req.body
+    var query = `INSERT INTO public."ACTIVITY" ("ENGAGEMENTID", "ACTEDON", "ACT", "ID")
+    VALUES($1, $2, $3, nextval('public.ACTIVITY_SEQ'))  returning *`
+    console.log(query);
+    bunyanLogger.info('create activity - ' + query);
+    var id = 0;
+    pool.query(query, [engagementid, actedon, act], (error, results) => {
+      release();
+      if (error) {
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      }
+      else {
+        if (results.rows.length > 0) {
+          id = results.rows[0]['ID']
+          resp.status(201).send({
+            info: "success",
+            data: results.rows[0],
+            message: "success"
+          })
+        }
+        else {
+          resp.status(403).send({
+            info: "failure",
+            data: [],
+            message: "no data"
+          })
+        }
+      }
+    })
   })
 }
 
 
 exports.updateActivity = (req, resp) => {
-  
+
   let { act, engagementid, actedon, id } = req.body;
   actedon = util.parseDate1(actedon, 'MM/DD/yyyy')
   console.log(act, actedon, id)
