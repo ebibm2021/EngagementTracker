@@ -34,7 +34,7 @@ exports.getActivity = (req, resp) => {
       })
       return console.error('Error acquiring client', err.stack)
     }
-    pool.query(`SELECT * FROM  public."ACTIVITY" where "ENGAGEMENTID" = ` + engagementId + ' ;', function (err, result) {
+    client.query(`SELECT * FROM  public."ACTIVITY" where "ENGAGEMENTID" = ` + engagementId + ' ;', function (err, result) {
       release();
       console.log(result)
       if (err) {
@@ -142,7 +142,7 @@ exports.createEngagement = (req, resp) => {
     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('public.ENGAGEMENT_SEQ')) returning *`
 
     bunyanLogger.info('create engagement - ' + query);
-    pool.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
+    client.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
       release()
       if (error) {
         resp.status(403).send({
@@ -189,7 +189,7 @@ exports.createActivity = (req, resp) => {
     console.log(query);
     bunyanLogger.info('create activity - ' + query);
     var id = 0;
-    pool.query(query, [engagementid, actedon, act], (error, results) => {
+    client.query(query, [engagementid, actedon, act], (error, results) => {
       release();
       if (error) {
         resp.status(403).send({
@@ -234,10 +234,10 @@ exports.updateActivity = (req, resp) => {
       })
       return console.error('Error acquiring client', err.stack)
     }
-    let query = 'update ' + schemaName + '.activity set "ACT" = ?, "ACTEDON" = ? WHERE "ID" = ? and "ENGAGEMENTID" = ?;'
-    client.query(query, function (err2, stmt) {
-      release();
+    let query = 'update public."ACTIVITY" set "ACT" = $1, "ACTEDON" = $2 WHERE "ID" = $3 and "ENGAGEMENTID" = $4;'
+    client.query(query, [act, actedon, id, engagementid], (err2, updateResult) => {
       if (err2) {
+        release();
         resp.status(403).send({
           info: "failure",
           data: [],
@@ -246,35 +246,23 @@ exports.updateActivity = (req, resp) => {
         return console.log(err2);
       }
       else {
-        stmt.execute([act, actedon, id, engagementid], function (err3, result) {
-          conn.closeSync();
-          if (err3) {
+        client.query(`SELECT * FROM  public."ACTIVITY" where "ENGAGEMENTID" = $1 ;`, [engagementid], (err4, resultdata) => {
+          release();
+          if (err4) {
             resp.status(403).send({
               info: "failure",
               data: [],
-              message: err3.stack
+              message: err4.stack
             })
-            return console.log(err3);
+            return console.log(err4);
           }
           else {
-            result.fetch(function (err4, resultdata) {
-              if (err4) {
-                resp.status(403).send({
-                  info: "failure",
-                  data: [],
-                  message: err4.stack
-                })
-                return console.log(err4);
-              }
-              else {
-                resp.status(200).send({
-                  info: "success",
-                  data: resultdata,
-                  message: "success"
-                })
-                return console.log(JSON.stringify(resultdata));
-              }
-            });
+            resp.status(200).send({
+              info: "success",
+              data: resultdata,
+              message: "success"
+            })
+            return console.log(JSON.stringify(resultdata));
           }
         });
       }

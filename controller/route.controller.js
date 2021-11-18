@@ -5,7 +5,7 @@ module.exports = function (app, bunyanLogger) {
   // PostgreSQL Handlers
   app.get('/api/activity', pgdbHandler.getActivity);
   app.post('/api/activity', pgdbHandler.createActivity); 
-  // app.put('/api/activity', pgdbHandler.updateActivity);
+  app.put('/api/activity', pgdbHandler.updateActivity);
   // app.delete('/api/activity', pgdbHandler.deleteActivity);
   // app.delete('/api/activities', pgdbHandler.deleteActivities);
 
