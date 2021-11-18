@@ -20,6 +20,8 @@ const pool = new Pool({
   port: 5432,
 })
 
+var util = require('./util.controller');
+
 exports.getActivity = (req, resp) => {
   let engagementId = req.query.engagement_id;
   console.log(engagementId);
@@ -32,8 +34,9 @@ exports.getActivity = (req, resp) => {
       })
       return console.error('Error acquiring client', err.stack)
     }
-    pool.query('SELECT * FROM  ACTIVITY where ENGAGEMENTID = ' + engagementId + ' ;', function (err, data) {
-      release();
+    pool.query(`SELECT * FROM  public."ACTIVITY" where "ENGAGEMENTID" = ` + engagementId + ' ;', function (err, result) {
+      release(); 
+      console.log(result)
       if (err) {
         resp.status(403).send({
           info: "failure",
@@ -43,12 +46,20 @@ exports.getActivity = (req, resp) => {
         return console.log('Error executing query', err.stack);
       }
       else {
-        resp.status(200).send({
-          info: "success",
-          data: util.convertKeyToLowerCase(data),
-          message: "success"
-        })
-        return console.log(JSON.stringify(data));
+        if(result.rows.length>0){
+          resp.status(200).send({
+            info: "success",
+            data: util.convertKeyToLowerCase(data.rows[0]),
+            message: "success"
+          })
+        } else {
+          resp.status(200).send({
+            info: "success",
+            data: [],
+            message: "success"
+          })
+        }
+        return console.log(JSON.stringify(result));
       }
     });
   });
