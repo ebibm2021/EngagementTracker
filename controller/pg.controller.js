@@ -16,7 +16,7 @@ const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'postgres',
-  password: 'pgadmin',
+  password: 'postgres',
   port: 5432,
 })
 
@@ -93,7 +93,7 @@ exports.getEngagement = (req, resp) => {
     ) as ac ON ac.ENGAGEMENTID  = e."ID"
     GROUP BY e."ID";`
     
-    bunyanLogger.error('get engagement - '+ query);
+    bunyanLogger.info('get engagement - '+ query);
     client.query(query, (err, result) => {
       release();
       if (err) {
@@ -103,6 +103,7 @@ exports.getEngagement = (req, resp) => {
           data: [],
           message: err.stack
         })
+        bunyanLogger.error('Error executing query' + err.stack);
         return console.error('Error executing query', err.stack)
       }
       resp.status(200).send({
@@ -115,21 +116,36 @@ exports.getEngagement = (req, resp) => {
 }
 
 exports.createEngagement = (req, resp) => {
-  const { market, customer, opportunity, seller, ctpa, partner, category, product, description, status, labsme, requestedon, completedon, results, effort, comment } = req.body
-  var query = 'INSERT INTO engagement' +
-    '(market, customer, opportunity, "seller/exec", "ctp/sca", partner, category, product, description, status, labsme, requestedon, completedon,result, effort, comment)' +
-    'VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15, $16) returning *'
+  const { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments } = req.body
+  var query = `INSERT INTO public."ENGAGEMENT" 
+    ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID")
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('public.ENGAGEMENT_SEQ')) returning *`
 
-  pool.query(query, [market, customer, opportunity, seller, ctpa, partner, category, product, description, status, labsme, requestedon, completedon, results, effort, comment], (error, results) => {
+  pool.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
     if (error) {
-      throw error
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: error.stack
+      })
     }
     console.log(JSON.stringify(results));
     var id = 0;
     if (results.rows.length > 0) {
-      id = results.rows[0].id
+      id = results.rows[0]['ID']
+      resp.status(201).send({
+        info: "success",
+        data: results.rows[0],
+        message: "success"
+      })
     }
-    resp.status(201).send(`Engagement added with ID: ` + id)
+    else {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: "no data"
+      })
+    }
   })
 }
 
