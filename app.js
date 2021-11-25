@@ -1,12 +1,13 @@
 let instana = require('@instana/collector')({
-  serviceName: 'EngagementTrackerService',
-  agentHost: 'localhost',
+  serviceName: process.env.INSTANA_SERVICE_NAME,
+  agentHost: process.env.INSTANA_AGENT_HOST,
   reportUncaughtException: true
 });
 
+require('dotenv').config();
 let bunyan = require('bunyan');
 // Create your logger(s).
-let bunyanLogger = bunyan.createLogger({name:"EngagementTrackerService"});
+let bunyanLogger = bunyan.createLogger({name: process.env.INSTANA_SERVICE_NAME});
 // Set the logger Instana should use.
 instana.setLogger(bunyanLogger);
 

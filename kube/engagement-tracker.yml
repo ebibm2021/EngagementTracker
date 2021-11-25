@@ -29,3 +29,9 @@ spec:
           value: "5432"
         - name: POSTGRESQL_DB
           value: "db0"
+        - name: INSTANA_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: INSTANA_SERVICE_NAME
+          value: EngagementTrackerService
