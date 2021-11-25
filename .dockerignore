@@ -31,3 +31,4 @@ kubernetes
 
 .env
 *.env
+package-lock.json
