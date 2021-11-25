@@ -11,13 +11,14 @@ let bunyanLogger = bunyan.createLogger({ name: "EngagementTrackerService" });
 // Set the logger Instana should use.
 instana.setLogger(bunyanLogger);
 
+require('dotenv').config();
 const Pool = require('pg').Pool
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'postgres',
-  password: 'postgres',
-  port: 5432,
+  user: process.env.POSTGRESQL_USER,
+  host: process.env.POSTGRESQL_HOST,
+  database: process.env.POSTGRESQL_DB,
+  password: process.env.POSTGRESQL_PASSWORD,
+  port: parseInt(process.env.POSTGRESQL_PORT),
 })
 
 var util = require('./util.controller');

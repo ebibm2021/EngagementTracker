@@ -28,15 +28,17 @@ import { MatSortModule } from '@angular/material/sort';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { DataExchangeComponent } from './data-exchange/data-exchange.component';
 import { TestComponent } from './test/test.component';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 
 const routes: Routes = [
   {path:'web/analytics', component: AnalyticDisplayComponent},
   {path:'web/data', component: DataDisplayComponent},
   {path:'web/test', component: TestComponent},
-  { path: '', redirectTo: '/web/data', pathMatch: 'full' },
-  { path: 'web', redirectTo: '/web/data', pathMatch: 'full' },
-  { path: '**', redirectTo: '/web/data', pathMatch: 'full' },
+  {path:'web/welcome', component: WelcomeComponent},
+  { path: '', redirectTo: '/web/welcome', pathMatch: 'full' },
+  { path: 'web', redirectTo: '/web/welcome', pathMatch: 'full' },
+  { path: '**', redirectTo: '/web/welcome', pathMatch: 'full' },
 ];
 
 @NgModule({
@@ -50,7 +52,8 @@ const routes: Routes = [
     AnalyticDisplayComponent,
     LoaderComponent,
     DataExchangeComponent,
-    TestComponent
+    TestComponent,
+    WelcomeComponent
   ],
   imports: [
     BrowserModule,
