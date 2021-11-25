@@ -1,0 +1,30 @@
+
+> docker build -t sujoysett/engagement-tracker .
+> docker push sujoysett/engagement-tracker
+
+> kubectl create deployment --image sujoysett/engagement-tracker engagement-tracker
+> kubectl scale deployment engagement-tracker --replicas 3
+> kubectl expose deployment engagement-tracker --type=NodePort --port 8080
+
+> kubectl get services
+> kubectl get nodes -o wide
+
+> kubectl apply -f postgres-secrets.yml
+> kubectl create -f postgres-storage-pv.yml
+> kubectl create -f postgres-storage-pvc.yml
+> kubectl create -f postgres-deployment.yml
+> kubectl create -f postgres-service.yml
+
+> kubectl get services
+> kubectl get nodes -o wide
+
+
+
+
+
+
+
+
+
+
+
