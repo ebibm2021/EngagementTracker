@@ -34,4 +34,4 @@ spec:
             fieldRef:
               fieldPath: status.hostIP
         - name: INSTANA_SERVICE_NAME
-          value: EngagementTrackerService
+          value: EngagementTrackerOnKube
