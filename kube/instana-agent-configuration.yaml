@@ -26,7 +26,7 @@ metadata:
     app.kubernetes.io/version: 1.2.28
 type: Opaque
 data:
-  key: Y0R5SDZaNnZRRGFPek9QSkRjNXJWQQ==
+  key: cVVNaFlKeGpTdjZ1WmgyU3lxVEVudw==
   downloadKey: ''
 ---
 apiVersion: v1
@@ -38,8 +38,9 @@ metadata:
     app.kubernetes.io/name: instana-agent
     app.kubernetes.io/version: 1.2.28
 data:
-  cluster_name: "NodePostgreSQLApp"
+  cluster_name: "NodePostgresExperimentOnKube"
   configuration.yaml: |
+  
     # Manual a-priori configuration. Configuration will be only used when the sensor
     # is actually installed by the agent.
     # The commented out example values represent example configuration and are not
@@ -63,17 +64,16 @@ data:
     #    - 'secret'
     
     # Host
-    com.instana.plugin.host:
-      tags:
-        - 'development'
-        - 'kubezone'
-      collectInstalledSoftware: true
+    #com.instana.plugin.host:
+    #  tags:
+    #    - 'dev'
+    #    - 'app1'
     
     # Hardware & Zone
     com.instana.plugin.generic.hardware:
       enabled: true # disabled by default
       availability-zone: 'kubezone'
-
+    
     # PostgreSQL
     com.instana.plugin.postgresql:
       user: 'postgres'
@@ -116,16 +116,16 @@ spec:
             - name: INSTANA_AGENT_LEADER_ELECTOR_PORT
               value: "42655"
             - name: INSTANA_ZONE
-              value: "kubezone"
+              value: "us-south"
             - name: INSTANA_KUBERNETES_CLUSTER_NAME
               valueFrom:
                 configMapKeyRef:
                   name: instana-agent
                   key: cluster_name
             - name: INSTANA_AGENT_ENDPOINT
-              value: "ingress-orange-saas.instana.io"
+              value: "52.118.146.233.nip.io"
             - name: INSTANA_AGENT_ENDPOINT_PORT
-              value: "443"
+              value: "1444"
             - name: INSTANA_AGENT_KEY
               valueFrom:
                 secretKeyRef:
