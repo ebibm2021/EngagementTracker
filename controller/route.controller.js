@@ -12,7 +12,7 @@ module.exports = function (app, bunyanLogger) {
   app.get('/api/engagement', pgdbHandler.getEngagement);
   app.post('/api/engagement', pgdbHandler.createEngagement);
   app.put('/api/engagement', pgdbHandler.updateEngagement);
-  // app.delete('/api/engagement', pgdbHandler.deleteEngagement);
+  app.delete('/api/engagement', pgdbHandler.deleteEngagement);
 
   // app.post('/api/bulk-upload', pgdbHandler.bulkUpload);
   // app.get('/api/filter_groups', pgdbHandler.getFilterGroups)

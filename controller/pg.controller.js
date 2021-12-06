@@ -187,7 +187,7 @@ exports.updateEngagement = (req, resp) => {
     }
     let { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id } = req.body;
     // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id)
-   
+
     let query = 'update ' + schemaName + '."ENGAGEMENT" set "MARKET" = $1, "CUSTOMER" = $2, "OPPORTUNITY" = $3, "SELLER/EXEC" = $4, "CTP/SCA" = $5, "PARTNER" = $6, "CATEGORY" = $7, "PRODUCT" = $8, "DESCRIPTION" = $9, "STATUS" = $10, "LABSME" = $11, "REQUESTEDON" = $12, "COMPLETEDON" = $13, "RESULT" = $14, "EFFORT" = $15, "COMMENTS" = $16 WHERE "ID" = $17;'
     bunyanLogger.info('update engagement - ' + query);
 
@@ -201,16 +201,56 @@ exports.updateEngagement = (req, resp) => {
           message: error.stack
         })
       } else {
-      console.log(JSON.stringify(results));
-      
+        console.log(JSON.stringify(results));
+
         resp.status(200).send({
           info: "success",
           data: results,
           message: "success"
         })
-      
+
+      }
+    });
+  });
+}
+
+
+exports.deleteEngagement = (req, resp) => {
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
     }
-    })
+    let id = req.query.id;
+    console.log(id);
+
+    let query = 'DELETE FROM ' + schemaName + '.engagement WHERE ID = $1;'
+    bunyanLogger.info('delete engagement - ' + query);
+
+    client.query(query, [id], (error, results) => {
+      release();
+      if (error) {
+        bunyanLogger.error('delete engagement - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
+        console.log(JSON.stringify(results));
+
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+
+      }
+    });
   });
 }
 
