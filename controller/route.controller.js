@@ -1,6 +1,5 @@
 module.exports = function (app, bunyanLogger) {
   const pgdbHandler = require('./pg.controller')
-  // const db = require('../queries')
 
   // PostgreSQL Handlers
   app.get('/api/activity', pgdbHandler.getActivity);
@@ -15,7 +14,7 @@ module.exports = function (app, bunyanLogger) {
   app.delete('/api/engagement', pgdbHandler.deleteEngagement);
 
   // app.post('/api/bulk-upload', pgdbHandler.bulkUpload);
-  // app.get('/api/filter_groups', pgdbHandler.getFilterGroups)
+  app.get('/api/filter_groups', pgdbHandler.getFilterGroups)
   // app.post('/api/search_analytics', pgdbHandler.searchAnalytics)
  
  

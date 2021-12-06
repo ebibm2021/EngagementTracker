@@ -425,3 +425,66 @@ exports.deleteActivities = (req, resp) => {
     });
   });
 };
+
+exports.getFilterGroups = (req, resp) => {
+
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+
+    let queries = [
+      ["market", `SELECT DISTINCT "MARKET" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["category", `SELECT DISTINCT "CATEGORY" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["product", `SELECT DISTINCT "PRODUCT" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["result", `SELECT DISTINCT "RESULT" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["status", `SELECT DISTINCT "STATUS" FROM ` + schemaName + `."ENGAGEMENT" ;`]
+    ]
+
+    let promises = [];
+    queries.forEach((query, index) => {
+      promises.push(new Promise((resolve, reject) => {
+
+        client.query(query[1], [], (error, data) => {
+
+          console.log(query[1])
+          console.log(data.rows)
+          let key = query[0];
+          if (err) {
+            reject({
+              [key]: []
+            });
+          }
+          else {
+            resolve({
+              [key]: util.groupByResponseObjectToArray(util.convertKeyToLowerCase(data.rows), key)
+            })
+          }
+        });
+      }));
+    });
+    Promise.all(promises).then((values) => {
+      release();
+      values = values.reduce((value, accumulator) => {
+        for (var key in value) {
+          if (value.hasOwnProperty(key)) {
+            accumulator[key] = value[key]
+          }
+        }
+        return accumulator;
+      }, {});
+      console.log(JSON.stringify(values));
+      resp.status(200).send({
+        info: "success",
+        data: values,
+        message: "success"
+      })
+      return console.log(JSON.stringify(values));
+    })
+  });
+}
