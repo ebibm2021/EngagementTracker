@@ -606,3 +606,137 @@ exports.searchAnalytics = (req, resp) => {
     })
   });
 }
+
+exports.bulkUpload = async (req, resp) => {
+  console.log(req.body);
+  let engagementValues = []
+  for (let i = 0; i < req.body.length; i++) {
+    let engagementActivityUnit = req.body[i];
+    //req.body.forEach((engagementActivityUnit) => {
+    let promise = new Promise((resolveEngagement, rejectEngagement) => {
+      let market = retrieveValue(engagementActivityUnit['market'], 'text');
+      let customer = retrieveValue(engagementActivityUnit['customer'], 'text');
+      let opportunity = retrieveValue(engagementActivityUnit['opportunity'], 'text');
+      let sellerexec = retrieveValue(engagementActivityUnit['seller/exec'], 'text');
+      let ctpsca = retrieveValue(engagementActivityUnit['ctp/sca'], 'text');
+      let partner = retrieveValue(engagementActivityUnit['partner'], 'text');
+      let category = retrieveValue(engagementActivityUnit['category'], 'text');
+      let product = retrieveValue(engagementActivityUnit['product'], 'text');
+      let description = retrieveValue(engagementActivityUnit['description'], 'text');
+      let status = retrieveValue(engagementActivityUnit['status'], 'text');
+      let labsme = retrieveValue(engagementActivityUnit['labsme'], 'text');
+      let requestedon = retrieveValue(engagementActivityUnit['requestedon'], 'text');
+      let completedon = retrieveValue(engagementActivityUnit['completedon'], 'text');
+      let result = retrieveValue(engagementActivityUnit['result'], 'text');
+      let effort = retrieveValue(engagementActivityUnit['effort'], 'number');
+      let comments = retrieveValue(engagementActivityUnit['comments'], 'text');
+      let activitiesFromThisEngagement = engagementActivityUnit['activities'];
+
+      // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments)
+      // console.log(opportunity, requestedon, completedon)
+      if (requestedon == null || requestedon == "") {
+        requestedon = null;
+      } else {
+        requestedon = util.parseDate2(requestedon, 'DD-MMM-yyyy', 'MM/DD/yyyy')
+      }
+      if (completedon == null || completedon == "") {
+        completedon = null;
+      } else {
+        completedon = util.parseDate2(completedon, 'DD-MMM-yyyy', 'MM/DD/yyyy')
+      }
+      // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments)
+      // console.log(opportunity, requestedon, completedon)
+      pool.connect((err, client, release) => {
+        if (err) {
+          resp.status(403).send({
+            info: "failure",
+            data: [],
+            message: err.stack
+          })
+          return console.error('Error acquiring client', err.stack)
+        }
+
+        // let queryEngagement = 'INSERT INTO ' + schemaName + '."ENGAGEMENT" ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval(' + schemaName + '."ENGAGEMENT_SEQ") ); '
+        var queryEngagement = `INSERT INTO ` + schemaName + `."ENGAGEMENT" 
+        ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID")
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('` + schemaName + `.ENGAGEMENT_SEQ')) returning *`
+    
+        client.query(queryEngagement, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], function (errEngagement3, resultEngagement) {
+          if (errEngagement3) {
+            release();
+            rejectEngagement(errEngagement3);
+          }
+          else {
+
+            console.log("Engagement Result Data => " + JSON.stringify(resultEngagement));
+            let engagementId = resultEngagement.rows[0]["ID"];
+
+            let bulkActivityPromises = [];
+            activitiesFromThisEngagement.forEach((activityFromThisEngagement) => {
+              bulkActivityPromises.push(new Promise((resolveActivity, rejectActivity) => {
+
+                let { act, actedon } = activityFromThisEngagement;
+                console.log(engagementId, act, actedon)
+                //actedon = util.parseDate2(actedon, 'DD-MMM-yyyy', 'MM/DD/yyyy')
+                console.log(engagementId, act, actedon)
+
+                let queryActivity = `INSERT INTO ` + schemaName + `."ACTIVITY" ("ENGAGEMENTID", "ACT", "ACTEDON", "ID") VALUES ($1, $2, $3, nextval('` + schemaName + `.ACTIVITY_SEQ'))  returning *`
+
+                client.query(queryActivity, [engagementId, act, actedon], function (errActivity3, resultActivity) {
+                  if (errActivity3) {
+                    rejectActivity(errActivity3);
+                  }
+                  else {
+                    console.log("Activity Result Data => " + JSON.stringify(resultActivity))
+                    let activityId = resultActivity.rows[0]['ID'];
+                    resolveActivity(activityId);
+                  }
+                });
+              }));
+            });
+            Promise.all(bulkActivityPromises).then((activityValues) => {
+              release()
+              console.log(activityValues);
+              resolveEngagement({ parent: engagementId, children: activityValues });
+            }).catch((errActivities) => {
+              release()
+              console.log(errActivities);
+              rejectEngagement({ parent: engagementId, children: errActivities });
+            });
+
+          }
+        });
+      });
+    });
+    let result = await promise;
+    engagementValues.push(result)
+  }
+  console.log(engagementValues);
+  resp.status(200).send({
+    info: "success",
+    data: engagementValues,
+    message: "success"
+  });
+}
+
+let retrieveValue = (anObject, style) => {
+  if (style == "text") {
+    if (anObject == undefined || anObject == null || anObject == "") {
+      return null;
+    } else {
+      return "" + anObject;
+    }
+  }
+  if (style == "number") {
+    if (anObject == undefined || anObject == null || anObject == "") {
+      return 0;
+    } else {
+      if (typeof (anObject) == "string") {
+        return parseInt(anObject)
+      }
+      else {
+        return anObject;
+      }
+    }
+  }
+}
