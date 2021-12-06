@@ -228,7 +228,7 @@ exports.deleteEngagement = (req, resp) => {
     let id = req.query.id;
     console.log(id);
 
-    let query = 'DELETE FROM ' + schemaName + '.engagement WHERE ID = $1;'
+    let query = 'DELETE FROM ' + schemaName + '."ENGAGEMENT" WHERE "ID" = $1;'
     bunyanLogger.info('delete engagement - ' + query);
 
     client.query(query, [id], (error, results) => {
@@ -380,6 +380,42 @@ exports.deleteActivity = (req, resp) => {
       } else {
         // console.log(JSON.stringify(results));
 
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+      }
+    });
+  });
+};
+
+
+exports.deleteActivities = (req, resp) => {
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let engagementId = req.query.engagementid;
+
+    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ENGAGEMENTID" = $1;'
+    bunyanLogger.info('delete activities - ' + query);
+
+    client.query(query, [engagementId], (error, results) => {
+      release();
+      if (error) {
+        bunyanLogger.error('delete activities - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
         resp.status(200).send({
           info: "success",
           data: results,
