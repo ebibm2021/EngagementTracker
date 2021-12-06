@@ -22,6 +22,7 @@ const pool = new Pool({
 })
 
 var util = require('./util.controller');
+var schemaName = process.env.POSTGRESQL_SCHEMA;
 
 exports.getActivity = (req, resp) => {
   let engagementId = req.query.engagement_id;
@@ -35,7 +36,7 @@ exports.getActivity = (req, resp) => {
       })
       return console.error('Error acquiring client', err.stack)
     }
-    client.query(`SELECT * FROM  public."ACTIVITY" where "ENGAGEMENTID" = ` + engagementId + ' ;', function (err, result) {
+    client.query(`SELECT * FROM ` + schemaName + `."ACTIVITY" where "ENGAGEMENTID" = ` + engagementId + ' ;', function (err, result) {
       release();
       console.log(result)
       if (err) {
@@ -77,31 +78,31 @@ exports.getEngagement = (req, resp) => {
       return console.error('Error acquiring client', err.stack)
     }
     let query = `SELECT max(e."MARKET") AS MARKET, 
-    max(e."CUSTOMER") AS CUSTOMER, 
-    max(e."OPPORTUNITY") AS OPPORTUNITY, 
-    max(e."SELLER/EXEC") AS "SELLER/EXEC", 
-    max(e."CTP/SCA") AS "CTP/SCA", 
-    max(e."PARTNER") AS PARTNER, 
-    max(e."CATEGORY") AS CATEGORY, 
-    max(e."PRODUCT") AS PRODUCT, 
-    max(e."DESCRIPTION") AS DESCRIPTION,
-    max(e."STATUS") AS STATUS, 
-    max(e."LABSME") AS LABSME, 
-    max(e."REQUESTEDON") AS REQUESTEDON, 
-    max(e."COMPLETEDON") AS COMPLETEDON,
-    max(e."RESULT") AS "RESULT",
-    max(e."EFFORT") AS EFFORT,
-    max(e."COMMENTS") AS COMMENTS,
-    max(e."ID") AS ID,
-    array_agg(ac.ACTIVITYDATA) AS ACTIVITYDATA,
-    CASE WHEN max(ac.ACTEDON) IS NULL THEN (CASE WHEN max(e."COMPLETEDON") IS NULL THEN max(e."REQUESTEDON") ELSE max(e."COMPLETEDON") END ) ELSE max(ac.ACTEDON) end AS LASTUPDATEDON
-    FROM public."ENGAGEMENT" e LEFT OUTER JOIN (
+    max(e."CUSTOMER") AS "customer", 
+    max(e."OPPORTUNITY") AS "opportunity", 
+    max(e."SELLER/EXEC") AS "seller/exec", 
+    max(e."CTP/SCA") AS "ctp/sca",
+    max(e."PARTNER") AS "partner", 
+    max(e."CATEGORY") AS "category", 
+    max(e."PRODUCT") AS "product", 
+    max(e."DESCRIPTION") AS "description",
+    max(e."STATUS") AS "status", 
+    max(e."LABSME") AS "labsme", 
+    max(e."REQUESTEDON") AS "requestedon", 
+    max(e."COMPLETEDON") AS "completedon",
+    max(e."RESULT") AS "result",
+    max(e."EFFORT") AS "effort",
+    max(e."COMMENTS") AS "comments",
+    max(e."ID") AS "id",
+    array_agg(ac.ACTIVITYDATA) AS "activitydata",
+    CASE WHEN max(ac.ACTEDON) IS NULL THEN (CASE WHEN max(e."COMPLETEDON") IS NULL THEN max(e."REQUESTEDON") ELSE max(e."COMPLETEDON") END ) ELSE max(ac.ACTEDON) end AS "lastupdatedon"
+    FROM ` + schemaName + `."ENGAGEMENT" e LEFT OUTER JOIN (
       select a."ID" as ID, 
       a."ACT" as ACT,
       a."ACTEDON" as ACTEDON,
       a."ACT" || '#' || a."ACTEDON" as ACTIVITYDATA, 
       a."ENGAGEMENTID" as ENGAGEMENTID 
-      from public."ACTIVITY" a
+      from ` + schemaName + `."ACTIVITY" a
     ) as ac ON ac.ENGAGEMENTID  = e."ID"
     GROUP BY e."ID";`
 
@@ -138,14 +139,15 @@ exports.createEngagement = (req, resp) => {
       return console.error('Error acquiring client', err.stack)
     }
     const { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments } = req.body
-    var query = `INSERT INTO public."ENGAGEMENT" 
+    var query = `INSERT INTO ` + schemaName + `."ENGAGEMENT" 
     ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID")
-    VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('public.ENGAGEMENT_SEQ')) returning *`
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('` + schemaName + `.ENGAGEMENT_SEQ')) returning *`
 
     bunyanLogger.info('create engagement - ' + query);
     client.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
       release()
       if (error) {
+        bunyanLogger.error('create engagement - ' + error);
         resp.status(403).send({
           info: "failure",
           data: [],
@@ -173,6 +175,45 @@ exports.createEngagement = (req, resp) => {
   })
 }
 
+exports.updateEngagement = (req, resp) => {
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id } = req.body;
+    // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id)
+   
+    let query = 'update ' + schemaName + '."ENGAGEMENT" set "MARKET" = $1, "CUSTOMER" = $2, "OPPORTUNITY" = $3, "SELLER/EXEC" = $4, "CTP/SCA" = $5, "PARTNER" = $6, "CATEGORY" = $7, "PRODUCT" = $8, "DESCRIPTION" = $9, "STATUS" = $10, "LABSME" = $11, "REQUESTEDON" = $12, "COMPLETEDON" = $13, "RESULT" = $14, "EFFORT" = $15, "COMMENTS" = $16 WHERE "ID" = $17;'
+    bunyanLogger.info('update engagement - ' + query);
+
+    client.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id], (error, results) => {
+      release()
+      if (error) {
+        bunyanLogger.error('update engagement - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
+      console.log(JSON.stringify(results));
+      
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+      
+    }
+    })
+  });
+}
+
 exports.createActivity = (req, resp) => {
 
   pool.connect((err, client, release) => {
@@ -185,8 +226,8 @@ exports.createActivity = (req, resp) => {
       return console.error('Error acquiring client', err.stack)
     }
     const { engagementid, actedon, act } = req.body
-    var query = `INSERT INTO public."ACTIVITY" ("ENGAGEMENTID", "ACTEDON", "ACT", "ID")
-    VALUES($1, $2, $3, nextval('public.ACTIVITY_SEQ'))  returning *`
+    var query = `INSERT INTO ` + schemaName + `."ACTIVITY" ("ENGAGEMENTID", "ACTEDON", "ACT", "ID")
+    VALUES($1, $2, $3, nextval('` + schemaName + `.ACTIVITY_SEQ'))  returning *`
     console.log(query);
     bunyanLogger.info('create activity - ' + query);
     var id = 0;
@@ -235,7 +276,7 @@ exports.updateActivity = (req, resp) => {
       })
       return console.error('Error acquiring client', err.stack)
     }
-    let query = 'update public."ACTIVITY" set "ACT" = $1, "ACTEDON" = $2 WHERE "ID" = $3 and "ENGAGEMENTID" = $4;'
+    let query = 'update ' + schemaName + '."ACTIVITY" set "ACT" = $1, "ACTEDON" = $2 WHERE "ID" = $3 and "ENGAGEMENTID" = $4;'
     client.query(query, [act, actedon, id, engagementid], (err2, updateResult) => {
       if (err2) {
         release();
@@ -247,7 +288,7 @@ exports.updateActivity = (req, resp) => {
         return console.log(err2);
       }
       else {
-        client.query(`SELECT * FROM  public."ACTIVITY" where "ENGAGEMENTID" = $1 ;`, [engagementid], (err4, resultdata) => {
+        client.query(`SELECT * FROM  ` + schemaName + `."ACTIVITY" where "ENGAGEMENTID" = $1 ;`, [engagementid], (err4, resultdata) => {
           release();
           if (err4) {
             resp.status(403).send({

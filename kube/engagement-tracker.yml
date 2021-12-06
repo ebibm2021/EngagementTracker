@@ -29,6 +29,8 @@ spec:
           value: "5432"
         - name: POSTGRESQL_DB
           value: "db0"
+        - name: POSTGRESQL_SCHEMA
+          value: "public"
         - name: INSTANA_AGENT_HOST
           valueFrom:
             fieldRef:
