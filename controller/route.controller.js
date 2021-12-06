@@ -15,7 +15,7 @@ module.exports = function (app, bunyanLogger) {
 
   // app.post('/api/bulk-upload', pgdbHandler.bulkUpload);
   app.get('/api/filter_groups', pgdbHandler.getFilterGroups)
-  // app.post('/api/search_analytics', pgdbHandler.searchAnalytics)
+  app.post('/api/search_analytics', pgdbHandler.searchAnalytics)
  
  
  
