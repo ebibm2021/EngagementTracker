@@ -351,3 +351,41 @@ exports.updateActivity = (req, resp) => {
     });
   });
 };
+
+exports.deleteActivity = (req, resp) => {
+
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let id = req.query.id;
+
+    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ID" = $1;'
+    bunyanLogger.info('delete activity - ' + query);
+
+    client.query(query, [id], (error, results) => {
+      release();
+      if (error) {
+        bunyanLogger.error('delete activity - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
+        // console.log(JSON.stringify(results));
+
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+      }
+    });
+  });
+};
