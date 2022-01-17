@@ -10,6 +10,11 @@ let bunyanLogger = bunyan.createLogger({name:"TeamDashboardService"});
 // Set the logger Instana should use.
 instana.setLogger(bunyanLogger);
 
+require('lightrun').start({
+  lightrunSecret: '743fd029-7c64-4e38-9902-fe037c7cd788',
+  company: 'icp4aeliteteam',
+});
+
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser')
