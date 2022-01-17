@@ -1,0 +1,46 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: engagement-tracker
+  labels:
+    app: engagement-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: engagement-tracker
+  template:
+    metadata:
+      labels:
+        app: engagement-tracker
+    spec:
+      containers:
+      - name: engagement-tracker
+        image: sujoysett/engagement-tracker
+        imagePullPolicy: Always
+        env:
+        - name: POSTGRESQL_USER
+          value: "postgres"
+        - name: POSTGRESQL_PASSWORD
+          value: "postgres"
+        - name: POSTGRESQL_HOST
+          value: "postgres"
+        - name: POSTGRESQL_PORT
+          value: "5432"
+        - name: POSTGRESQL_DB
+          value: "db0"
+        - name: POSTGRESQL_SCHEMA
+          value: "public"
+        - name: INSTANA_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: INSTANA_SERVICE_NAME
+          value: EngagementTrackerOnKube
+        resources:
+          limits:
+            cpu: 250m
+            memory: 128Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi

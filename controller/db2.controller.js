@@ -1,14 +1,3 @@
-let instana = require('@instana/collector')({
-  serviceName: 'TeamDashboardService',
-  agentHost: 'worker0.instana-ocp.os.fyre.ibm.com',
-  reportUncaughtException: true
-});
-
-let bunyan = require('bunyan');
-// Create your logger(s).
-let bunyanLogger = bunyan.createLogger({name:"TeamDashboardService"});
-// Set the logger Instana should use.
-instana.setLogger(bunyanLogger);
 
 var ibmdb = require('ibm_db');
 var util = require('./util.controller');
@@ -88,7 +77,6 @@ exports.getEngagement = (req, resp) => {
     ) as ac ON ac.ENGAGEMENTID  = e.ID
     GROUP BY e.ID;`
     console.log(query)
-    bunyanLogger.error('get engagement - '+ query);
     conn.query(query, function (err, data) {
       conn.closeSync();
       if (err) {
@@ -128,7 +116,6 @@ exports.createEngagement = (req, resp) => {
     }
     let query = 'SELECT ID FROM FINAL TABLE (INSERT INTO ' + schemaName + '.engagement ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ' + schemaName + '.ENGAGEMENT_SEQ.nextval))'
 
-    bunyanLogger.error('create engagement - '+ query);
     
     conn.prepare(query, function (err2, stmt) {
       if (err2) {
@@ -303,7 +290,7 @@ exports.deleteEngagement = (req, resp) => {
 }
 
 exports.updateActivity = (req, resp) => {
-  console.log("hello")
+  
   let { act, engagementid, actedon, id } = req.body;
   actedon = util.parseDate1(actedon, 'MM/DD/yyyy')
   console.log(act, actedon, id)

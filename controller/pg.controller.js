@@ -1,16 +1,70 @@
 
+let instana = require('@instana/collector')({
+  serviceName: process.env.INSTANA_SERVICE_NAME,
+  agentHost: process.env.INSTANA_AGENT_HOST,
+  reportUncaughtException: true
+});
+
+let bunyan = require('bunyan');
+// Create your logger(s).
+let bunyanLogger = bunyan.createLogger({ name: process.env.INSTANA_SERVICE_NAME });
+// Set the logger Instana should use.
+instana.setLogger(bunyanLogger);
+
+require('dotenv').config();
 const Pool = require('pg').Pool
 const pool = new Pool({
-  user: 'postgres',
-  host: '9.30.250.172',
-  database: 'postgres',
-  password: 'postgres',
-  port: 5432,
+  user: process.env.POSTGRESQL_USER,
+  host: process.env.POSTGRESQL_HOST,
+  database: process.env.POSTGRESQL_DB,
+  password: process.env.POSTGRESQL_PASSWORD,
+  port: parseInt(process.env.POSTGRESQL_PORT),
 })
 
+var util = require('./util.controller');
+var schemaName = process.env.POSTGRESQL_SCHEMA;
+
 exports.getActivity = (req, resp) => {
-  var activites = []
-  return activites;
+  let engagementId = req.query.engagement_id;
+  console.log(engagementId);
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    client.query(`SELECT * FROM ` + schemaName + `."ACTIVITY" where "ENGAGEMENTID" = ` + engagementId + ' ;', function (err, result) {
+      release();
+      console.log(result)
+      if (err) {
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: err.stack
+        })
+        return console.log('Error executing query', err.stack);
+      }
+      else {
+        if (result.rows.length > 0) {
+          resp.status(200).send({
+            info: "success",
+            data: util.convertKeyToLowerCase(result.rows),
+            message: "success"
+          })
+        } else {
+          resp.status(200).send({
+            info: "success",
+            data: [],
+            message: "success"
+          })
+        }
+        return console.log(JSON.stringify(result));
+      }
+    });
+  });
 }
 
 exports.getEngagement = (req, resp) => {
@@ -23,7 +77,37 @@ exports.getEngagement = (req, resp) => {
       })
       return console.error('Error acquiring client', err.stack)
     }
-    client.query('SELECT * FROM public.engagement;', (err, result) => {
+    let query = `SELECT max(e."MARKET") AS MARKET, 
+    max(e."CUSTOMER") AS "customer", 
+    max(e."OPPORTUNITY") AS "opportunity", 
+    max(e."SELLER/EXEC") AS "seller/exec", 
+    max(e."CTP/SCA") AS "ctp/sca",
+    max(e."PARTNER") AS "partner", 
+    max(e."CATEGORY") AS "category", 
+    max(e."PRODUCT") AS "product", 
+    max(e."DESCRIPTION") AS "description",
+    max(e."STATUS") AS "status", 
+    max(e."LABSME") AS "labsme", 
+    max(e."REQUESTEDON") AS "requestedon", 
+    max(e."COMPLETEDON") AS "completedon",
+    max(e."RESULT") AS "result",
+    max(e."EFFORT") AS "effort",
+    max(e."COMMENTS") AS "comments",
+    max(e."ID") AS "id",
+    array_agg(ac.ACTIVITYDATA) AS "activitydata",
+    CASE WHEN max(ac.ACTEDON) IS NULL THEN (CASE WHEN max(e."COMPLETEDON") IS NULL THEN max(e."REQUESTEDON") ELSE max(e."COMPLETEDON") END ) ELSE max(ac.ACTEDON) end AS "lastupdatedon"
+    FROM ` + schemaName + `."ENGAGEMENT" e LEFT OUTER JOIN (
+      select a."ID" as ID, 
+      a."ACT" as ACT,
+      a."ACTEDON" as ACTEDON,
+      a."ACT" || '#' || a."ACTEDON" as ACTIVITYDATA, 
+      a."ENGAGEMENTID" as ENGAGEMENTID 
+      from ` + schemaName + `."ACTIVITY" a
+    ) as ac ON ac.ENGAGEMENTID  = e."ID"
+    GROUP BY e."ID";`
+
+    bunyanLogger.info('get engagement - ' + query);
+    client.query(query, (err, result) => {
       release();
       if (err) {
 
@@ -32,6 +116,7 @@ exports.getEngagement = (req, resp) => {
           data: [],
           message: err.stack
         })
+        bunyanLogger.error('Error executing query' + err.stack);
         return console.error('Error executing query', err.stack)
       }
       resp.status(200).send({
@@ -44,38 +129,614 @@ exports.getEngagement = (req, resp) => {
 }
 
 exports.createEngagement = (req, resp) => {
-  const { market, customer, opportunity, seller, ctpa, partner, category, product, description, status, labsme, requestedon, completedon, results, effort, comment } = req.body
-  var query = 'INSERT INTO public.engagement' +
-    '(market, customer, opportunity, "seller/exec", "ctp/sca", partner, category, product, description, status, labsme, requestedon, completedon,result, effort, comment)' +
-    'VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15, $16) returning *'
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    const { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments } = req.body
+    var query = `INSERT INTO ` + schemaName + `."ENGAGEMENT" 
+    ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID")
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('` + schemaName + `.ENGAGEMENT_SEQ')) returning *`
 
-  pool.query(query, [market, customer, opportunity, seller, ctpa, partner, category, product, description, status, labsme, requestedon, completedon, results, effort, comment], (error, results) => {
-    if (error) {
-      throw error
-    }
-    console.log(JSON.stringify(results));
-    var id = 0;
-    if (results.rows.length > 0) {
-      id = results.rows[0].id
-    }
-    resp.status(201).send(`Engagement added with ID: ` + id)
+    bunyanLogger.info('create engagement - ' + query);
+    client.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
+      release()
+      if (error) {
+        bunyanLogger.error('create engagement - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      }
+      console.log(JSON.stringify(results));
+      var id = 0;
+      if (results.rows.length > 0) {
+        id = results.rows[0]['ID']
+        resp.status(201).send({
+          info: "success",
+          data: results.rows[0],
+          message: "success"
+        })
+      }
+      else {
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: "no data"
+        })
+      }
+    })
   })
 }
 
+exports.updateEngagement = (req, resp) => {
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let { market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id } = req.body;
+    // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id)
+
+    let query = 'update ' + schemaName + '."ENGAGEMENT" set "MARKET" = $1, "CUSTOMER" = $2, "OPPORTUNITY" = $3, "SELLER/EXEC" = $4, "CTP/SCA" = $5, "PARTNER" = $6, "CATEGORY" = $7, "PRODUCT" = $8, "DESCRIPTION" = $9, "STATUS" = $10, "LABSME" = $11, "REQUESTEDON" = $12, "COMPLETEDON" = $13, "RESULT" = $14, "EFFORT" = $15, "COMMENTS" = $16 WHERE "ID" = $17;'
+    bunyanLogger.info('update engagement - ' + query);
+
+    client.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id], (error, results) => {
+      release()
+      if (error) {
+        bunyanLogger.error('update engagement - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
+        console.log(JSON.stringify(results));
+
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+
+      }
+    });
+  });
+}
+
+
+exports.deleteEngagement = (req, resp) => {
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let id = req.query.id;
+    console.log(id);
+
+    let query = 'DELETE FROM ' + schemaName + '."ENGAGEMENT" WHERE "ID" = $1;'
+    bunyanLogger.info('delete engagement - ' + query);
+
+    client.query(query, [id], (error, results) => {
+      release();
+      if (error) {
+        bunyanLogger.error('delete engagement - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
+        console.log(JSON.stringify(results));
+
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+
+      }
+    });
+  });
+}
+
 exports.createActivity = (req, resp) => {
-  const { engagementid, actedon, action } = req.body
-  var query = "INSERT INTO public.activity" +
-    "(engagementid, actedon, action) " +
-    "VALUES($1, $2, $3)"
-  console.log(query);
-  var id = 0;
-  pool.query(query, [engagementid, actedon, action], (error, results) => {
-    if (error) {
-      throw error
+
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
     }
-    if (results.rows.length > 0) {
-      id = results.rows[0].id
-    }
-    resp.status(201).send(`Activity added with ID: ` + id)
+    const { engagementid, actedon, act } = req.body
+    var query = `INSERT INTO ` + schemaName + `."ACTIVITY" ("ENGAGEMENTID", "ACTEDON", "ACT", "ID")
+    VALUES($1, $2, $3, nextval('` + schemaName + `.ACTIVITY_SEQ'))  returning *`
+    console.log(query);
+    bunyanLogger.info('create activity - ' + query);
+    var id = 0;
+    client.query(query, [engagementid, actedon, act], (error, results) => {
+      release();
+      if (error) {
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      }
+      else {
+        if (results.rows.length > 0) {
+          id = results.rows[0]['ID']
+          resp.status(201).send({
+            info: "success",
+            data: results.rows[0],
+            message: "success"
+          })
+        }
+        else {
+          resp.status(403).send({
+            info: "failure",
+            data: [],
+            message: "no data"
+          })
+        }
+      }
+    })
   })
+}
+
+
+exports.updateActivity = (req, resp) => {
+
+  let { act, engagementid, actedon, id } = req.body;
+  actedon = util.parseDate1(actedon, 'MM/DD/yyyy')
+  console.log(act, actedon, id)
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let query = 'update ' + schemaName + '."ACTIVITY" set "ACT" = $1, "ACTEDON" = $2 WHERE "ID" = $3 and "ENGAGEMENTID" = $4;'
+    client.query(query, [act, actedon, id, engagementid], (err2, updateResult) => {
+      if (err2) {
+        release();
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: err2.stack
+        })
+        return console.log(err2);
+      }
+      else {
+        client.query(`SELECT * FROM  ` + schemaName + `."ACTIVITY" where "ENGAGEMENTID" = $1 ;`, [engagementid], (err4, resultdata) => {
+          release();
+          if (err4) {
+            resp.status(403).send({
+              info: "failure",
+              data: [],
+              message: err4.stack
+            })
+            return console.log(err4);
+          }
+          else {
+            resp.status(200).send({
+              info: "success",
+              data: resultdata,
+              message: "success"
+            })
+            return console.log(JSON.stringify(resultdata));
+          }
+        });
+      }
+    });
+  });
+};
+
+exports.deleteActivity = (req, resp) => {
+
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let id = req.query.id;
+
+    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ID" = $1;'
+    bunyanLogger.info('delete activity - ' + query);
+
+    client.query(query, [id], (error, results) => {
+      release();
+      if (error) {
+        bunyanLogger.error('delete activity - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
+        // console.log(JSON.stringify(results));
+
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+      }
+    });
+  });
+};
+
+
+exports.deleteActivities = (req, resp) => {
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+    let engagementId = req.query.engagementid;
+
+    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ENGAGEMENTID" = $1;'
+    bunyanLogger.info('delete activities - ' + query);
+
+    client.query(query, [engagementId], (error, results) => {
+      release();
+      if (error) {
+        bunyanLogger.error('delete activities - ' + error);
+        resp.status(403).send({
+          info: "failure",
+          data: [],
+          message: error.stack
+        })
+      } else {
+        resp.status(200).send({
+          info: "success",
+          data: results,
+          message: "success"
+        })
+      }
+    });
+  });
+};
+
+exports.getFilterGroups = (req, resp) => {
+
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+
+    let queries = [
+      ["market", `SELECT DISTINCT "MARKET" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["category", `SELECT DISTINCT "CATEGORY" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["product", `SELECT DISTINCT "PRODUCT" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["result", `SELECT DISTINCT "RESULT" FROM ` + schemaName + `."ENGAGEMENT" ;`],
+      ["status", `SELECT DISTINCT "STATUS" FROM ` + schemaName + `."ENGAGEMENT" ;`]
+    ]
+
+    let promises = [];
+    queries.forEach((query, index) => {
+      promises.push(new Promise((resolve, reject) => {
+
+        client.query(query[1], [], (error, data) => {
+
+          console.log(query[1])
+          console.log(data.rows)
+          let key = query[0];
+          if (err) {
+            reject({
+              [key]: []
+            });
+          }
+          else {
+            resolve({
+              [key]: util.groupByResponseObjectToArray(util.convertKeyToLowerCase(data.rows), key)
+            })
+          }
+        });
+      }));
+    });
+    Promise.all(promises).then((values) => {
+      release();
+      values = values.reduce((value, accumulator) => {
+        for (var key in value) {
+          if (value.hasOwnProperty(key)) {
+            accumulator[key] = value[key]
+          }
+        }
+        return accumulator;
+      }, {});
+      // console.log(JSON.stringify(values));
+      resp.status(200).send({
+        info: "success",
+        data: values,
+        message: "success"
+      })
+      return console.log(JSON.stringify(values));
+    })
+  });
+}
+
+
+exports.searchAnalytics = (req, resp) => {
+  console.log("Hello the filters are");
+  console.log(req.body.filters);
+
+  dateStart = req.body.filters.dateStart
+  dateEnd = req.body.filters.dateEnd
+
+  let queryBody = `( SELECT 
+    max(e."MARKET") AS "market", 
+    max(e."CUSTOMER") AS "customer", 
+    max(e."OPPORTUNITY") AS "opportunity", 
+    max(e."SELLER/EXEC") AS "seller/exec", 
+    max(e."CTP/SCA") AS "ctp/sca", 
+    max(e."PARTNER") AS "partner", 
+    max(e."CATEGORY") AS "category", 
+    max(e."PRODUCT") AS "product", 
+    max(e."DESCRIPTION") AS "description",
+    max(e."STATUS") AS "status", 
+    max(e."LABSME") AS "labsme", 
+    max(e."REQUESTEDON") AS "requestedon", 
+    max(e."COMPLETEDON") AS "completedon",
+    max(e."RESULT") AS "result",
+    max(e."EFFORT") AS "effort",
+    max(e."COMMENTS") AS "comments",
+    max(e."ID") AS "id",
+    array_agg(ac.ACTIVITYDATA) AS "activitydata",
+    CASE WHEN max(ac.ACTEDON) IS NULL THEN (CASE WHEN max(e."COMPLETEDON") IS NULL THEN max(e."REQUESTEDON") ELSE max(e."COMPLETEDON") END ) ELSE max(ac.ACTEDON) end AS "lastupdatedon"
+  FROM ` + schemaName + `."ENGAGEMENT" e LEFT OUTER JOIN (
+    select a."ID" as ID, 
+    a."ACT" as ACT,
+    a."ACTEDON" as ACTEDON,
+    a."ACT" || '#' || a."ACTEDON" as ACTIVITYDATA, 
+    a."ENGAGEMENTID" as ENGAGEMENTID 
+    from ` + schemaName + `."ACTIVITY" a
+  ) as ac ON ac.ENGAGEMENTID  = e."ID"
+  GROUP BY e."ID" ) as w `
+
+  let queryFilter = "";
+  queryFilter = queryFilter + " where ( ( w.REQUESTEDON >= '" + dateStart + "' and w.REQUESTEDON <= '" + dateEnd + "' ) or ( w.COMPLETEDON >= '" + dateStart + "' and w.COMPLETEDON <= '" + dateEnd + "' ) or ( w.LASTUPDATEDON >= '" + dateStart + "' and w.LASTUPDATEDON <= '" + dateEnd + "' ) ) "
+  if (req.body.filters.status.toLowerCase().trim() != "all") {
+    queryFilter = queryFilter + " and lower(w.STATUS) = '" + req.body.filters.status.toLowerCase().trim() + "' ";
+  }
+  if (req.body.filters.result.toLowerCase().trim() != "all") {
+    queryFilter = queryFilter + " and lower(w.RESULT) = '" + req.body.filters.result.toLowerCase().trim() + "' ";
+  }
+  if (req.body.filters.category.toLowerCase().trim() != "all") {
+    queryFilter = queryFilter + " and lower(w.CATEGORY) = '" + req.body.filters.category.toLowerCase().trim() + "' ";
+  }
+  if (req.body.filters.product.toLowerCase().trim() != "all") {
+    queryFilter = queryFilter + " and lower(w.PRODUCT) = '" + req.body.filters.product.toLowerCase().trim() + "' ";
+  }
+
+  // let querySelect = " select w.status as STATUS, count(1) as COUNT from ";
+  // let queryGrouping = " group by w.status "
+
+  let queryStructures = [
+    { name: "Status Distribution", querySelect: " select w.status as STATUS, count(1) as COUNT from ", queryGrouping: " group by w.status " },
+    { name: "Result Distribution", querySelect: " select w.result as RESULT, count(1) as COUNT from ", queryGrouping: " group by w.result " },
+    { name: "Category Distribution", querySelect: " select w.category as CATEGORY, count(1) as COUNT from ", queryGrouping: " group by w.category " },
+    { name: "Market Distribution", querySelect: " select w.market as MARKET, count(1) as COUNT from ", queryGrouping: " group by w.market " },
+    { name: "Customer Distribution", querySelect: " select w.customer as CUSTOMER, count(1) as COUNT from ", queryGrouping: " group by w.customer " }
+  ]
+
+
+  pool.connect((err, client, release) => {
+    if (err) {
+      resp.status(403).send({
+        info: "failure",
+        data: [],
+        message: err.stack
+      })
+      return console.error('Error acquiring client', err.stack)
+    }
+
+    let promises = [];
+    queryStructures.forEach((queryStructure, index) => {
+      promises.push(new Promise((resolve, reject) => {
+
+        let query = queryStructure.querySelect + queryBody + queryFilter + queryStructure.queryGrouping;
+
+        console.log(query)
+        client.query(query, [], (error, data) => {
+          var key = queryStructure.name;
+          if (err) {
+            reject({
+              [key]: []
+            });
+          }
+          else {
+            resolve({
+              [key]: util.convertKeyToLowerCase(data.rows)
+            })
+          }
+        });
+      }));
+    });
+    Promise.all(promises).then((values) => {
+      release();
+      values = values.reduce((value, accumulator) => {
+        for (var key in value) {
+          if (value.hasOwnProperty(key)) {
+            accumulator[key] = value[key]
+          }
+        }
+        return accumulator;
+      }, {});
+      console.log(JSON.stringify(values));
+      resp.status(200).send({
+        info: "success",
+        data: values,
+        message: "success"
+      })
+      return console.log(JSON.stringify(values));
+    })
+  });
+}
+
+exports.bulkUpload = async (req, resp) => {
+  console.log(req.body);
+  let engagementValues = []
+  for (let i = 0; i < req.body.length; i++) {
+    let engagementActivityUnit = req.body[i];
+    //req.body.forEach((engagementActivityUnit) => {
+    let promise = new Promise((resolveEngagement, rejectEngagement) => {
+      let market = retrieveValue(engagementActivityUnit['market'], 'text');
+      let customer = retrieveValue(engagementActivityUnit['customer'], 'text');
+      let opportunity = retrieveValue(engagementActivityUnit['opportunity'], 'text');
+      let sellerexec = retrieveValue(engagementActivityUnit['seller/exec'], 'text');
+      let ctpsca = retrieveValue(engagementActivityUnit['ctp/sca'], 'text');
+      let partner = retrieveValue(engagementActivityUnit['partner'], 'text');
+      let category = retrieveValue(engagementActivityUnit['category'], 'text');
+      let product = retrieveValue(engagementActivityUnit['product'], 'text');
+      let description = retrieveValue(engagementActivityUnit['description'], 'text');
+      let status = retrieveValue(engagementActivityUnit['status'], 'text');
+      let labsme = retrieveValue(engagementActivityUnit['labsme'], 'text');
+      let requestedon = retrieveValue(engagementActivityUnit['requestedon'], 'text');
+      let completedon = retrieveValue(engagementActivityUnit['completedon'], 'text');
+      let result = retrieveValue(engagementActivityUnit['result'], 'text');
+      let effort = retrieveValue(engagementActivityUnit['effort'], 'number');
+      let comments = retrieveValue(engagementActivityUnit['comments'], 'text');
+      let activitiesFromThisEngagement = engagementActivityUnit['activities'];
+
+      // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments)
+      // console.log(opportunity, requestedon, completedon)
+      if (requestedon == null || requestedon == "") {
+        requestedon = null;
+      } else {
+        requestedon = util.parseDate2(requestedon, 'DD-MMM-yyyy', 'MM/DD/yyyy')
+      }
+      if (completedon == null || completedon == "") {
+        completedon = null;
+      } else {
+        completedon = util.parseDate2(completedon, 'DD-MMM-yyyy', 'MM/DD/yyyy')
+      }
+      // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments)
+      // console.log(opportunity, requestedon, completedon)
+      pool.connect((err, client, release) => {
+        if (err) {
+          resp.status(403).send({
+            info: "failure",
+            data: [],
+            message: err.stack
+          })
+          return console.error('Error acquiring client', err.stack)
+        }
+
+        // let queryEngagement = 'INSERT INTO ' + schemaName + '."ENGAGEMENT" ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval(' + schemaName + '."ENGAGEMENT_SEQ") ); '
+        var queryEngagement = `INSERT INTO ` + schemaName + `."ENGAGEMENT" 
+        ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID")
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('` + schemaName + `.ENGAGEMENT_SEQ')) returning *`
+    
+        client.query(queryEngagement, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], function (errEngagement3, resultEngagement) {
+          if (errEngagement3) {
+            release();
+            rejectEngagement(errEngagement3);
+          }
+          else {
+
+            console.log("Engagement Result Data => " + JSON.stringify(resultEngagement));
+            let engagementId = resultEngagement.rows[0]["ID"];
+
+            let bulkActivityPromises = [];
+            activitiesFromThisEngagement.forEach((activityFromThisEngagement) => {
+              bulkActivityPromises.push(new Promise((resolveActivity, rejectActivity) => {
+
+                let { act, actedon } = activityFromThisEngagement;
+                console.log(engagementId, act, actedon)
+                //actedon = util.parseDate2(actedon, 'DD-MMM-yyyy', 'MM/DD/yyyy')
+                console.log(engagementId, act, actedon)
+
+                let queryActivity = `INSERT INTO ` + schemaName + `."ACTIVITY" ("ENGAGEMENTID", "ACT", "ACTEDON", "ID") VALUES ($1, $2, $3, nextval('` + schemaName + `.ACTIVITY_SEQ'))  returning *`
+
+                client.query(queryActivity, [engagementId, act, actedon], function (errActivity3, resultActivity) {
+                  if (errActivity3) {
+                    rejectActivity(errActivity3);
+                  }
+                  else {
+                    console.log("Activity Result Data => " + JSON.stringify(resultActivity))
+                    let activityId = resultActivity.rows[0]['ID'];
+                    resolveActivity(activityId);
+                  }
+                });
+              }));
+            });
+            Promise.all(bulkActivityPromises).then((activityValues) => {
+              release()
+              console.log(activityValues);
+              resolveEngagement({ parent: engagementId, children: activityValues });
+            }).catch((errActivities) => {
+              release()
+              console.log(errActivities);
+              rejectEngagement({ parent: engagementId, children: errActivities });
+            });
+
+          }
+        });
+      });
+    });
+    let result = await promise;
+    engagementValues.push(result)
+  }
+  console.log(engagementValues);
+  resp.status(200).send({
+    info: "success",
+    data: engagementValues,
+    message: "success"
+  });
+}
+
+let retrieveValue = (anObject, style) => {
+  if (style == "text") {
+    if (anObject == undefined || anObject == null || anObject == "") {
+      return null;
+    } else {
+      return "" + anObject;
+    }
+  }
+  if (style == "number") {
+    if (anObject == undefined || anObject == null || anObject == "") {
+      return 0;
+    } else {
+      if (typeof (anObject) == "string") {
+        return parseInt(anObject)
+      }
+      else {
+        return anObject;
+      }
+    }
+  }
 }

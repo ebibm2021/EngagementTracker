@@ -29,6 +29,12 @@ export class HeaderComponent implements OnInit {
     this.setHighlight();
   }
 
+  menuClickWelcome() {
+    this.mainMenu = 'welcome';
+    this.router.navigate(['/web/welcome']);
+    this.setHighlight();
+  }
+
   menuClickTest() {
     this.mainMenu = 'test';
     this.router.navigate(['/web/test']);
