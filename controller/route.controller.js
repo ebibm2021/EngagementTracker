@@ -1,6 +1,8 @@
 module.exports = function (app, bunyanLogger) {
   const pgdbHandler = require('./pg.controller')
+  const pHandler = require('./prometheus.controller')
 
+ 
   // PostgreSQL Handlers
   app.get('/api/activity', pgdbHandler.getActivity);
   app.post('/api/activity', pgdbHandler.createActivity); 
@@ -16,6 +18,10 @@ module.exports = function (app, bunyanLogger) {
   app.post('/api/bulk-upload', pgdbHandler.bulkUpload);
   app.get('/api/filter_groups', pgdbHandler.getFilterGroups)
   app.post('/api/search_analytics', pgdbHandler.searchAnalytics)
+
+  app.get('/metrics', pHandler.getMetrics)
+
+
  
  
  
