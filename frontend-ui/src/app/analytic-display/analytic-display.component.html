@@ -1,54 +1,62 @@
-<div class="analytic-form-container">
-    <div>
-        <mat-form-field appearance="standard" class="field">
-            <mat-label>Start Date</mat-label>
-            <input matInput [matDatepicker]="picker1" [(ngModel)]="filterData.dateStart" required>
-            <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-            <mat-datepicker #picker1></mat-datepicker>
-        </mat-form-field>
-        <mat-form-field appearance="standard" class="field">
-            <mat-label>End Date</mat-label>
-            <input matInput [matDatepicker]="picker2" [(ngModel)]="filterData.dateEnd" required>
-            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-            <mat-datepicker #picker2></mat-datepicker>
-        </mat-form-field>
-    </div>
-    <div>
-        <mat-form-field appearance="standard" class="field">
-            <mat-label>Status</mat-label>
-            <mat-select [(value)]="filterData.status" (selectionChange)="searchAnalytics()">
-                <mat-option value="all">All</mat-option>
-                <mat-option *ngFor="let item of filterOptions.status" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="standard" class="field">
-            <mat-label>Result</mat-label>
-            <mat-select [(value)]="filterData.result" (selectionChange)="searchAnalytics()">
-                <mat-option value="all">All</mat-option>
-                <mat-option *ngFor="let item of filterOptions.result" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="standard" class="field">
-            <mat-label>Category</mat-label>
-            <mat-select [(value)]="filterData.category" (selectionChange)="searchAnalytics()">
-                <mat-option value="all">All</mat-option>
-                <mat-option *ngFor="let item of filterOptions.category" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="standard" class="field">
-            <mat-label>Product</mat-label>
-            <mat-select [(value)]="filterData.product" (selectionChange)="searchAnalytics()">
-                <mat-option value="all">All</mat-option>
-                <mat-option *ngFor="let item of filterOptions.product" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
-    <hr>
+<div *ngIf="apiHealthReady">
 
-    <div class="tablet-container">
-        <div *ngFor="let item of analytics" class="tablet">
-            {{item.title}}
-            <div echarts [options]="item.chart" class="demo-chart"></div>
+    <div class="analytic-form-container">
+        <div>
+            <mat-form-field appearance="standard" class="field">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="picker1" [(ngModel)]="filterData.dateStart" required>
+                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="field">
+                <mat-label>End Date</mat-label>
+                <input matInput [matDatepicker]="picker2" [(ngModel)]="filterData.dateEnd" required>
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+            </mat-form-field>
         </div>
+        <div>
+            <mat-form-field appearance="standard" class="field">
+                <mat-label>Status</mat-label>
+                <mat-select [(value)]="filterData.status" (selectionChange)="searchAnalytics()">
+                    <mat-option value="all">All</mat-option>
+                    <mat-option *ngFor="let item of filterOptions.status" [value]="item">{{item}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="field">
+                <mat-label>Result</mat-label>
+                <mat-select [(value)]="filterData.result" (selectionChange)="searchAnalytics()">
+                    <mat-option value="all">All</mat-option>
+                    <mat-option *ngFor="let item of filterOptions.result" [value]="item">{{item}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="field">
+                <mat-label>Category</mat-label>
+                <mat-select [(value)]="filterData.category" (selectionChange)="searchAnalytics()">
+                    <mat-option value="all">All</mat-option>
+                    <mat-option *ngFor="let item of filterOptions.category" [value]="item">{{item}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="field">
+                <mat-label>Product</mat-label>
+                <mat-select [(value)]="filterData.product" (selectionChange)="searchAnalytics()">
+                    <mat-option value="all">All</mat-option>
+                    <mat-option *ngFor="let item of filterOptions.product" [value]="item">{{item}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <hr>
+
+        <div class="tablet-container">
+            <div *ngFor="let item of analytics" class="tablet">
+                {{item.title}}
+                <div echarts [options]="item.chart" class="demo-chart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="!apiHealthReady">
+    <div fxLayout fxLayoutAlign="center center" style="text-align: center;">
+        Backend APIs are not reachable, please check logs. Retrying in a short interval.
     </div>
 </div>

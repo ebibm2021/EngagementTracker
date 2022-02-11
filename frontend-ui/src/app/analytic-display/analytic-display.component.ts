@@ -3,6 +3,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { FilterService } from '../services/filter.service';
 import { LoaderService } from '../services/loader.service';
 import LinearGradient from 'zrender/lib/graphic/LinearGradient';
+import { HealthService } from '../services/health.service';
 
 @Component({
   selector: 'app-analytic-display',
@@ -13,29 +14,32 @@ export class AnalyticDisplayComponent implements OnInit {
 
   public filterData: any = {};
   public filterOptions: any = {};
-
+  public apiHealthReady: Boolean = false;
   public analytics = [];
 
   constructor(
     private filterService: FilterService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private healthService: HealthService
   ) { }
 
   ngOnInit() {
-    this.loaderService.startLoading();
-    this.filterData = this.initFilterData();
-    this.loadFilterOptions();
-    this.analytics = [
-      { title: "Creating visualizations ...", chart: {} },
-      { title: "Creating visualizations ...", chart: {} },
-      { title: "Creating visualizations ...", chart: {} },
-      { title: "Creating visualizations ...", chart: {} },
-      { title: "Creating visualizations ...", chart: {} }
-    ];
-    this.searchAnalytics();
-    // this.createChart1();
-    // this.createChart2();
-    // this.generateBarChartOptions1();
+    this.healthService.getCoreApiHealth().subscribe((response) => {
+      console.log(response)
+      this.apiHealthReady = true;
+
+      this.loaderService.startLoading();
+      this.filterData = this.initFilterData();
+      this.loadFilterOptions();
+      this.analytics = [
+        { title: "Creating visualizations ...", chart: {} },
+        { title: "Creating visualizations ...", chart: {} },
+        { title: "Creating visualizations ...", chart: {} },
+        { title: "Creating visualizations ...", chart: {} },
+        { title: "Creating visualizations ...", chart: {} }
+      ];
+      this.searchAnalytics();
+    });
   }
 
   loadFilterOptions() {
@@ -110,57 +114,6 @@ export class AnalyticDisplayComponent implements OnInit {
 
       this.loaderService.stopLoading();
     })
-  }
-
-  createChart1() {
-    const xAxisData = [];
-    const data1 = [];
-    const data2 = [];
-
-    for (let i = 0; i < 100; i++) {
-      xAxisData.push('category' + i);
-      data1.push((Math.sin(i / 5) * (i / 5 - 10) + i / 6) * 5);
-      data2.push((Math.cos(i / 5) * (i / 5 - 10) + i / 6) * 5);
-    }
-
-    let options = {
-      legend: {
-        data: ['bar', 'bar2'],
-        align: 'left',
-      },
-      tooltip: {},
-      xAxis: {
-        data: xAxisData,
-        silent: false,
-        splitLine: {
-          show: false,
-        },
-      },
-      yAxis: {},
-      series: [
-        {
-          name: 'bar',
-          type: 'bar',
-          data: data1,
-          animationDelay: (idx) => idx * 10,
-        },
-        {
-          name: 'bar2',
-          type: 'bar',
-          data: data2,
-          animationDelay: (idx) => idx * 10 + 100,
-        },
-      ],
-      animationEasing: 'elasticOut',
-      animationDelayUpdate: (idx) => idx * 5,
-    };
-
-    this.analytics[0].chart = options;
-    // this.analytics[1].chart = options;
-    this.analytics[2].chart = options;
-    this.analytics[3].chart = options;
-    this.analytics[4].chart = options;
-    this.analytics[5].chart = options;
   }
 
   generateNightingleChartOptions1(data: any, tooltipName): any {
@@ -388,70 +341,70 @@ export class AnalyticDisplayComponent implements OnInit {
   generateMultiGaugeChartOptions1(data: any): any {
 
     if (data.length == 1) {
-      data[0]['title']= {
+      data[0]['title'] = {
         offsetCenter: ['0%', '80%']
       };
-      data[0]['detail']= {
+      data[0]['detail'] = {
         offsetCenter: ['0%', '95%']
       };
     }
     else if (data.length == 2) {
-      data[0]['title']= {
+      data[0]['title'] = {
         offsetCenter: ['-40%', '80%']
       };
-      data[0]['detail']= {
+      data[0]['detail'] = {
         offsetCenter: ['-40%', '95%']
       };
-      data[1]['title']= {
+      data[1]['title'] = {
         offsetCenter: ['40%', '80%']
       };
-      data[1]['detail']= {
+      data[1]['detail'] = {
         offsetCenter: ['40%', '95%']
       };
-    } 
+    }
     else if (data.length == 3) {
-      data[0]['title']= {
+      data[0]['title'] = {
         offsetCenter: ['-40%', '80%']
       };
-      data[0]['detail']= {
+      data[0]['detail'] = {
         offsetCenter: ['-40%', '95%']
       };
-      data[1]['title']= {
+      data[1]['title'] = {
         offsetCenter: ['0%', '80%']
       };
-      data[1]['detail']= {
+      data[1]['detail'] = {
         offsetCenter: ['0%', '95%']
       };
-      data[2]['title']= {
+      data[2]['title'] = {
         offsetCenter: ['40%', '80%']
       };
-      data[2]['detail']= {
+      data[2]['detail'] = {
         offsetCenter: ['40%', '95%']
       };
     }
     else if (data.length == 4) {
-      data[0]['title']= {
+      data[0]['title'] = {
         offsetCenter: ['-60%', '80%']
       };
-      data[0]['detail']= {
+      data[0]['detail'] = {
         offsetCenter: ['-60%', '95%']
       };
-      data[1]['title']= {
+      data[1]['title'] = {
         offsetCenter: ['-20%', '80%']
       };
-      data[1]['detail']= {
+      data[1]['detail'] = {
         offsetCenter: ['-20%', '95%']
       };
-      data[2]['title']= {
+      data[2]['title'] = {
         offsetCenter: ['20%', '80%']
       };
-      data[2]['detail']= {
+      data[2]['detail'] = {
         offsetCenter: ['20%', '95%']
       };
-      data[3]['title']= {
+      data[3]['title'] = {
         offsetCenter: ['60%', '80%']
       };
-      data[3]['detail']= {
+      data[3]['detail'] = {
         offsetCenter: ['60%', '95%']
       };
     }

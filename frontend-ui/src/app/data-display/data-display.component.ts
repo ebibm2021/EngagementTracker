@@ -9,6 +9,7 @@ import { EngagementFormComponent } from '../engagement-form/engagement-form.comp
 import { ActivityService } from '../services/activity.service';
 import { CustomAlertService } from '../services/custom-alert.service';
 import { EngagementService } from '../services/engagement.service';
+import { HealthService } from '../services/health.service';
 import { LoaderService } from '../services/loader.service';
 import { StorageService } from '../services/storage.service';
 
@@ -22,6 +23,7 @@ export class DataDisplayComponent implements OnInit {
   public engagementCols: string[] = ['actions', 'opportunity', 'market', 'customer', 'seller/exec', 'ctp/sca', 'partner', 'category', 'product', 'description', 'status', 'labsme', 'requestedon', 'completedon', 'result', 'effort', 'comments', 'id','lastupdatedon'];
   public engagements: MatTableDataSource<any> = new MatTableDataSource<any>([]);
   public filterString = "";
+  public apiHealthReady: Boolean = false;
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
 
@@ -31,11 +33,16 @@ export class DataDisplayComponent implements OnInit {
     private activityService: ActivityService,
     private customAlertService: CustomAlertService,
     private loaderService: LoaderService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private healthService: HealthService
   ) { }
 
   ngOnInit() {
-    this.loadEngagementData();
+    this.healthService.getCoreApiHealth().subscribe((response)=>{
+      console.log(response)
+      this.apiHealthReady = true;
+      this.loadEngagementData();
+    })
   }
 
   ngAfterViewInit() {

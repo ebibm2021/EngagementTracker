@@ -2,26 +2,6 @@ table {
     min-width: 100%;
 }
 
-/* .add-button {
-    position: absolute;
-    bottom: 50px;
-    margin-left: 20px;
-    height: 40px;
-    width: 50px;
-    background-color: #d02670;
-    color: white;
-    border-radius: 50%;
-    display: inline-block;
-    cursor: pointer;
-    text-align: center;
-    vertical-align: middle;
-    padding-top: 10px;
-}
-
-.add-button:hover {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-} */
-
 .mat-table {
     overflow-x: scroll;
     display: block;
@@ -54,7 +34,3 @@ table {
     padding: 0px 10px;
     cursor: pointer;
 }
-
-/* .icon-style-2:hover {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-} */
