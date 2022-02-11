@@ -1,4 +1,4 @@
-module.exports = function (app, bunyanLogger) {
+module.exports = function (app) {
   const pgdbHandler = require('./pg.controller')
  
   // PostgreSQL Handlers

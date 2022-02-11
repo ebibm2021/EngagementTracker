@@ -15,7 +15,7 @@ app.use(express.static(__dirname));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Set our api routes
-require('./controller/route.controller.js')(app, bunyanLogger);
+require('./controller/route.controller.js')(app);
 
 var server = app.listen(process.env.PORT || 8080,function(){
   console.log("App listening at 8080");
