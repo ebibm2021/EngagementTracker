@@ -1,8 +1,0 @@
-applications:
-  - name: engagement-tracker
-    host: engagement-tracker
-    memory: 512M
-    command: node app.js
-    env:
-      DB2_CONN: NA
-      DB2_SCHEMA: NA
