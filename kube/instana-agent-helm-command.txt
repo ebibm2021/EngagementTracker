@@ -1,1 +1,0 @@
-helm install instana-agent --repo https://agents.instana.io/helm --namespace instana-agent --create-namespace --set agent.key=cDyH6Z6vQDaOzOPJDc5rVA --set agent.endpointHost=ingress-orange-saas.instana.io --set agent.endpointPort=443 --set cluster.name='NodePostgreSQLExperimentKubernetes' --set zone.name='kubezone' instana-agent
