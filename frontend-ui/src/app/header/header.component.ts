@@ -14,7 +14,7 @@ export class HeaderComponent implements OnInit {
   public mainMenu = '';
 
   ngOnInit() {
-    this.menuClickData();
+    this.menuClickWelcome();
   }
 
   menuClickData() {

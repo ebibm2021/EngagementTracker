@@ -32,10 +32,10 @@ import { WelcomeComponent } from './welcome/welcome.component';
 
 
 const routes: Routes = [
+  {path:'web/welcome', component: WelcomeComponent},
   {path:'web/analytics', component: AnalyticDisplayComponent},
   {path:'web/data', component: DataDisplayComponent},
   {path:'web/test', component: TestComponent},
-  {path:'web/welcome', component: WelcomeComponent},
   { path: '', redirectTo: '/web/welcome', pathMatch: 'full' },
   { path: 'web', redirectTo: '/web/welcome', pathMatch: 'full' },
   { path: '**', redirectTo: '/web/welcome', pathMatch: 'full' },
