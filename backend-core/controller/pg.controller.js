@@ -1,16 +1,3 @@
-
-let instana = require('@instana/collector')({
-  serviceName: process.env.INSTANA_SERVICE_NAME,
-  agentHost: process.env.INSTANA_AGENT_HOST,
-  reportUncaughtException: true
-});
-
-let bunyan = require('bunyan');
-// Create your logger(s).
-let bunyanLogger = bunyan.createLogger({ name: process.env.INSTANA_SERVICE_NAME });
-// Set the logger Instana should use.
-instana.setLogger(bunyanLogger);
-
 require('dotenv').config();
 const Pool = require('pg').Pool
 const pool = new Pool({
@@ -106,7 +93,6 @@ exports.getEngagement = (req, resp) => {
     ) as ac ON ac.ENGAGEMENTID  = e."ID"
     GROUP BY e."ID";`
 
-    bunyanLogger.info('get engagement - ' + query);
     client.query(query, (err, result) => {
       release();
       if (err) {
@@ -116,7 +102,6 @@ exports.getEngagement = (req, resp) => {
           data: [],
           message: err.stack
         })
-        bunyanLogger.error('Error executing query' + err.stack);
         return console.error('Error executing query', err.stack)
       }
       resp.status(200).send({
@@ -143,11 +128,9 @@ exports.createEngagement = (req, resp) => {
     ("MARKET", "CUSTOMER", "OPPORTUNITY", "SELLER/EXEC", "CTP/SCA", "PARTNER", "CATEGORY", "PRODUCT", "DESCRIPTION", "STATUS", "LABSME", "REQUESTEDON", "COMPLETEDON", "RESULT", "EFFORT", "COMMENTS", "ID")
     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, nextval('` + schemaName + `.ENGAGEMENT_SEQ')) returning *`
 
-    bunyanLogger.info('create engagement - ' + query);
     client.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments], (error, results) => {
       release()
       if (error) {
-        bunyanLogger.error('create engagement - ' + error);
         resp.status(403).send({
           info: "failure",
           data: [],
@@ -189,12 +172,10 @@ exports.updateEngagement = (req, resp) => {
     // console.log(market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id)
 
     let query = 'update ' + schemaName + '."ENGAGEMENT" set "MARKET" = $1, "CUSTOMER" = $2, "OPPORTUNITY" = $3, "SELLER/EXEC" = $4, "CTP/SCA" = $5, "PARTNER" = $6, "CATEGORY" = $7, "PRODUCT" = $8, "DESCRIPTION" = $9, "STATUS" = $10, "LABSME" = $11, "REQUESTEDON" = $12, "COMPLETEDON" = $13, "RESULT" = $14, "EFFORT" = $15, "COMMENTS" = $16 WHERE "ID" = $17;'
-    bunyanLogger.info('update engagement - ' + query);
-
+    
     client.query(query, [market, customer, opportunity, sellerexec, ctpsca, partner, category, product, description, status, labsme, requestedon, completedon, result, effort, comments, id], (error, results) => {
       release()
       if (error) {
-        bunyanLogger.error('update engagement - ' + error);
         resp.status(403).send({
           info: "failure",
           data: [],
@@ -228,13 +209,11 @@ exports.deleteEngagement = (req, resp) => {
     let id = req.query.id;
     console.log(id);
 
-    let query = 'DELETE FROM ' + schemaName + '."ENGAGEMENT" WHERE "ID" = $1;'
-    bunyanLogger.info('delete engagement - ' + query);
+    let query = 'DELETE FROM ' + schemaName + '."ENGAGEMENT" WHERE "ID" = $1;';
 
     client.query(query, [id], (error, results) => {
       release();
       if (error) {
-        bunyanLogger.error('delete engagement - ' + error);
         resp.status(403).send({
           info: "failure",
           data: [],
@@ -269,7 +248,6 @@ exports.createActivity = (req, resp) => {
     var query = `INSERT INTO ` + schemaName + `."ACTIVITY" ("ENGAGEMENTID", "ACTEDON", "ACT", "ID")
     VALUES($1, $2, $3, nextval('` + schemaName + `.ACTIVITY_SEQ'))  returning *`
     console.log(query);
-    bunyanLogger.info('create activity - ' + query);
     var id = 0;
     client.query(query, [engagementid, actedon, act], (error, results) => {
       release();
@@ -365,13 +343,11 @@ exports.deleteActivity = (req, resp) => {
     }
     let id = req.query.id;
 
-    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ID" = $1;'
-    bunyanLogger.info('delete activity - ' + query);
+    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ID" = $1;';
 
     client.query(query, [id], (error, results) => {
       release();
       if (error) {
-        bunyanLogger.error('delete activity - ' + error);
         resp.status(403).send({
           info: "failure",
           data: [],
@@ -403,13 +379,11 @@ exports.deleteActivities = (req, resp) => {
     }
     let engagementId = req.query.engagementid;
 
-    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ENGAGEMENTID" = $1;'
-    bunyanLogger.info('delete activities - ' + query);
+    let query = 'DELETE FROM ' + schemaName + '."ACTIVITY" WHERE "ENGAGEMENTID" = $1;';
 
     client.query(query, [engagementId], (error, results) => {
       release();
       if (error) {
-        bunyanLogger.error('delete activities - ' + error);
         resp.status(403).send({
           info: "failure",
           data: [],
