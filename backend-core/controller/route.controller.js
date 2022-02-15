@@ -1,5 +1,6 @@
 module.exports = function (app) {
   const pgdbHandler = require('./pg.controller')
+  const healthHandler = require('./health.controller')
  
   // PostgreSQL Handlers
   app.get('/api/activity', pgdbHandler.getActivity);
@@ -16,4 +17,6 @@ module.exports = function (app) {
   app.post('/api/bulk-upload', pgdbHandler.bulkUpload);
   app.get('/api/filter_groups', pgdbHandler.getFilterGroups)
   app.post('/api/search_analytics', pgdbHandler.searchAnalytics)
+
+  app.get('/api/health', healthHandler.getHealth)
 }
