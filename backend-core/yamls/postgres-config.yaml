@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: backend-core
+    tier: backend
+data:
+  POSTGRESQL_HOST: localhost
+  POSTGRESQL_PORT: "5432"
+  POSTGRESQL_DB: postgres
+  POSTGRESQL_SCHEMA: public
