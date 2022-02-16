@@ -55,3 +55,5 @@ Thumbs.db
 /*/.angular/
 package-lock.json
 /*/package-lock.json
+
+*/__pycache__/*
