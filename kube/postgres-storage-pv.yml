@@ -10,6 +10,11 @@ spec:
     capacity:
         storage: 5Gi
     accessModes:
-        - ReadWriteMany
-    hostPath:
-        path: "/mnt/data"
+        - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    nfs:
+      server: 10.17.65.199
+      path: /data/postgres
+    claimRef:
+      namespace: test-sample
+      name: postgres-pv-claim

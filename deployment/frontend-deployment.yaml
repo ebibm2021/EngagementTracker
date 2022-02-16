@@ -27,3 +27,17 @@ spec:
           requests:
             cpu: 250m
             memory: 64Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-ui-service
+spec:
+  selector:
+    app: frontend-ui
+  ports:
+    - port: 80
+      targetPort: 8091
+  type: LoadBalancer
