@@ -125,18 +125,22 @@ def searchAnalytics():
             queryFilter = queryFilter + " and lower(w.PRODUCT) = '" + requestBody['filters']['product'].strip().lower() + "' "
 
         queryStructures = [
-            { 'name': "Status Distribution", 'querySelect': " select w.status as STATUS, count(1) as COUNT from ", 'queryGrouping': " group by w.status " },
-            { 'name': "Result Distribution", 'querySelect': " select w.result as RESULT, count(1) as COUNT from ", 'queryGrouping': " group by w.result " },
-            { 'name': "Category Distribution", 'querySelect': " select w.category as CATEGORY, count(1) as COUNT from ", 'queryGrouping': " group by w.category " },
-            { 'name': "Market Distribution", 'querySelect': " select w.market as MARKET, count(1) as COUNT from ", 'queryGrouping': " group by w.market " },
-            { 'name': "Customer Distribution", 'querySelect': " select w.customer as CUSTOMER, count(1) as COUNT from ", 'queryGrouping': " group by w.customer " }
+            { 'name': "Status Distribution", 'alias':"status", 'querySelect': " select w.status as STATUS, count(1) as COUNT from ", 'queryGrouping': " group by w.status " },
+            { 'name': "Result Distribution", 'alias':"result", 'querySelect': " select w.result as RESULT, count(1) as COUNT from ", 'queryGrouping': " group by w.result " },
+            { 'name': "Category Distribution", 'alias':"category", 'querySelect': " select w.category as CATEGORY, count(1) as COUNT from ", 'queryGrouping': " group by w.category " },
+            { 'name': "Market Distribution", 'alias':"market", 'querySelect': " select w.market as MARKET, count(1) as COUNT from ", 'queryGrouping': " group by w.market " },
+            { 'name': "Customer Distribution", 'alias':"customer", 'querySelect': " select w.customer as CUSTOMER, count(1) as COUNT from ", 'queryGrouping': " group by w.customer " }
         ]
 
         compositeResult = {}
         for queryStructure in queryStructures:
             cur.execute(queryStructure['querySelect'] + queryBody + queryFilter + queryStructure['queryGrouping'])
             queryResult = cur.fetchall()
-            compositeResult[queryStructure['name']] = queryResult
+            print(queryResult)
+            tempResult = []
+            for queryResultUnit in queryResult:
+                tempResult.append({queryStructure['alias']:queryResultUnit[0], 'count':queryResultUnit[1]})
+            compositeResult[queryStructure['name']] = tempResult
 
         cur.close()
         return generateResponse({"info":"success","data":compositeResult, "message": "success"})
