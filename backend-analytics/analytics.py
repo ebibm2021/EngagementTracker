@@ -1,58 +1,43 @@
-from flask import render_template
+from flask import render_template, jsonify
 from flask import Flask
 from flask import request
 import psycopg2
 from config import config
 import json
+
 schemaName = "public"
 
-def connect():
-    """ Connect to the PostgreSQL database server """
+def generateResponse(data):
+    response = jsonify(data)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    return response
+
+def getHealth():
     conn = None
     try:
-        # read connection parameters
         params = config()
-
-        # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
-		
-        # create a cursor
         cur = conn.cursor()
-        
-	# execute a statement
         print('PostgreSQL database version:')
         cur.execute('SELECT version()')
-
-        # display the PostgreSQL database server version
         db_version = cur.fetchone()
         print(db_version)
-       
-	# close the communication with the PostgreSQL
         cur.close()
+        return generateResponse({"info":"success","message":"success"})
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+        return generateResponse({"info":"failure","message":""+ error})
     finally:
         if conn is not None:
             conn.close()
-            print('Database connection closed.')
-
-
+    return generateResponse({"info":"failure","data":{}, "message": "No result, No error, Check Logs"})
 
 def getFilterGroups():
-    print(request.method)
-    # print(request.body)
-    compositeResult = {}
     conn = None
     try:
-        # read connection parameters
         params = config()
-
-        # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
-		
-        # create a cursor
         cur = conn.cursor()
         
         queries = [
@@ -63,28 +48,26 @@ def getFilterGroups():
             ["status", 'SELECT DISTINCT "STATUS" FROM ' + schemaName + '."ENGAGEMENT" ;']
         ]
 
+        compositeResult = {}
         for query in queries:
             cur.execute(query[1])
-
-            # display the PostgreSQL database server version
             queryResult = cur.fetchall()
             tempresult = []
             for resultUnit in queryResult:
                 tempresult.append(resultUnit[0])
             compositeResult[query[0]] = tempresult
        
-	    # close the communication with the PostgreSQL
         cur.close()
+        return generateResponse({"info":"success","data":compositeResult, "message": "success"})
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-        compositeResult = {"info":"failure","data":{},"message":""+ error}
+        return generateResponse({"info":"failure","data":{},"message":""+ error})
     finally:
         if conn is not None:
             conn.close()
-            print('Database connection closed.')
 
-    return {"info":"success","data":compositeResult, "message": "success"}
+    return generateResponse({"info":"failure","data":{}, "message": "No result, No error, Check Logs"})
 
 def searchAnalytics(self, data):
     

@@ -24,7 +24,7 @@ export class AnalyticDisplayComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.healthService.getCoreApiHealth().subscribe((response) => {
+    this.healthService.getAnalyticsApiHealth().subscribe((response) => {
       console.log(response)
       this.apiHealthReady = true;
 
