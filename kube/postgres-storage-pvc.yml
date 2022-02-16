@@ -3,9 +3,10 @@ kind: PersistentVolumeClaim
 metadata:
     name: postgres-pv-claim
 spec:
-    storageClassName: manual
-    accessModes:
-        - ReadWriteMany
-    resources:
-        requests:
-            storage: 1Gi
+  accessModes:
+      - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: postgres-pv-volume
+  volumeMode: Filesystem
