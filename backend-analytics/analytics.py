@@ -77,8 +77,66 @@ def searchAnalytics():
         params = config()
         conn = psycopg2.connect(**params)
         cur = conn.cursor()
+        requestBody = request.json
+        print(requestBody)
 
+        dateStart = requestBody['filters']['dateStart']
+        dateEnd = requestBody['filters']['dateEnd']
 
+        queryBody = '''( SELECT 
+            max(e."MARKET") AS "market", 
+            max(e."CUSTOMER") AS "customer", 
+            max(e."OPPORTUNITY") AS "opportunity", 
+            max(e."SELLER/EXEC") AS "seller/exec", 
+            max(e."CTP/SCA") AS "ctp/sca", 
+            max(e."PARTNER") AS "partner", 
+            max(e."CATEGORY") AS "category", 
+            max(e."PRODUCT") AS "product", 
+            max(e."DESCRIPTION") AS "description",
+            max(e."STATUS") AS "status", 
+            max(e."LABSME") AS "labsme", 
+            max(e."REQUESTEDON") AS "requestedon", 
+            max(e."COMPLETEDON") AS "completedon",
+            max(e."RESULT") AS "result",
+            max(e."EFFORT") AS "effort",
+            max(e."COMMENTS") AS "comments",
+            max(e."ID") AS "id",
+            array_agg(ac.ACTIVITYDATA) AS "activitydata",
+            CASE WHEN max(ac.ACTEDON) IS NULL THEN (CASE WHEN max(e."COMPLETEDON") IS NULL THEN max(e."REQUESTEDON") ELSE max(e."COMPLETEDON") END ) ELSE max(ac.ACTEDON) end AS "lastupdatedon"
+        FROM ''' + schemaName + '''."ENGAGEMENT" e LEFT OUTER JOIN (
+            select a."ID" as ID, 
+            a."ACT" as ACT,
+            a."ACTEDON" as ACTEDON,
+            a."ACT" || '#' || a."ACTEDON" as ACTIVITYDATA, 
+            a."ENGAGEMENTID" as ENGAGEMENTID 
+            from ''' + schemaName + '''."ACTIVITY" a
+        ) as ac ON ac.ENGAGEMENTID  = e."ID"
+        GROUP BY e."ID" ) as w '''
+
+        queryFilter = ""
+        queryFilter = queryFilter + " where ( ( w.REQUESTEDON >= '" + dateStart + "' and w.REQUESTEDON <= '" + dateEnd + "' ) or ( w.COMPLETEDON >= '" + dateStart + "' and w.COMPLETEDON <= '" + dateEnd + "' ) or ( w.LASTUPDATEDON >= '" + dateStart + "' and w.LASTUPDATEDON <= '" + dateEnd + "' ) ) "
+        if requestBody['filters']['status'].strip().lower() != "all":
+            queryFilter = queryFilter + " and lower(w.STATUS) = '" + requestBody['filters']['status'].strip().lower() + "' "
+        if requestBody['filters']['result'].strip().lower() != "all":
+            queryFilter = queryFilter + " and lower(w.RESULT) = '" + requestBody['filters']['result'].strip().lower() + "' "
+        if requestBody['filters']['category'].strip().lower() != "all":
+            queryFilter = queryFilter + " and lower(w.CATEGORY) = '" + requestBody['filters']['category'].strip().lower() + "' "
+        if requestBody['filters']['product'].strip().lower() != "all":
+            queryFilter = queryFilter + " and lower(w.PRODUCT) = '" + requestBody['filters']['product'].strip().lower() + "' "
+
+        queryStructures = [
+            { 'name': "Status Distribution", 'querySelect': " select w.status as STATUS, count(1) as COUNT from ", 'queryGrouping': " group by w.status " },
+            { 'name': "Result Distribution", 'querySelect': " select w.result as RESULT, count(1) as COUNT from ", 'queryGrouping': " group by w.result " },
+            { 'name': "Category Distribution", 'querySelect': " select w.category as CATEGORY, count(1) as COUNT from ", 'queryGrouping': " group by w.category " },
+            { 'name': "Market Distribution", 'querySelect': " select w.market as MARKET, count(1) as COUNT from ", 'queryGrouping': " group by w.market " },
+            { 'name': "Customer Distribution", 'querySelect': " select w.customer as CUSTOMER, count(1) as COUNT from ", 'queryGrouping': " group by w.customer " }
+        ]
+
+        compositeResult = {}
+        for queryStructure in queryStructures:
+            cur.execute(queryStructure['querySelect'] + queryBody + queryFilter + queryStructure['queryGrouping'])
+            queryResult = cur.fetchall()
+            compositeResult[queryStructure['name']] = queryResult
 
         cur.close()
         return generateResponse({"info":"success","data":compositeResult, "message": "success"})
@@ -91,68 +149,6 @@ def searchAnalytics():
             conn.close()
 
     return generateResponse({"info":"failure","data":{}, "message": "No result, No error, Check Logs"})
-
-    
-#     console.log(req.body.filters);
-
-#   dateStart = req.body.filters.dateStart
-#   dateEnd = req.body.filters.dateEnd
-
-#   let queryBody = `( SELECT 
-#     max(e."MARKET") AS "market", 
-#     max(e."CUSTOMER") AS "customer", 
-#     max(e."OPPORTUNITY") AS "opportunity", 
-#     max(e."SELLER/EXEC") AS "seller/exec", 
-#     max(e."CTP/SCA") AS "ctp/sca", 
-#     max(e."PARTNER") AS "partner", 
-#     max(e."CATEGORY") AS "category", 
-#     max(e."PRODUCT") AS "product", 
-#     max(e."DESCRIPTION") AS "description",
-#     max(e."STATUS") AS "status", 
-#     max(e."LABSME") AS "labsme", 
-#     max(e."REQUESTEDON") AS "requestedon", 
-#     max(e."COMPLETEDON") AS "completedon",
-#     max(e."RESULT") AS "result",
-#     max(e."EFFORT") AS "effort",
-#     max(e."COMMENTS") AS "comments",
-#     max(e."ID") AS "id",
-#     array_agg(ac.ACTIVITYDATA) AS "activitydata",
-#     CASE WHEN max(ac.ACTEDON) IS NULL THEN (CASE WHEN max(e."COMPLETEDON") IS NULL THEN max(e."REQUESTEDON") ELSE max(e."COMPLETEDON") END ) ELSE max(ac.ACTEDON) end AS "lastupdatedon"
-#   FROM ` + schemaName + `."ENGAGEMENT" e LEFT OUTER JOIN (
-#     select a."ID" as ID, 
-#     a."ACT" as ACT,
-#     a."ACTEDON" as ACTEDON,
-#     a."ACT" || '#' || a."ACTEDON" as ACTIVITYDATA, 
-#     a."ENGAGEMENTID" as ENGAGEMENTID 
-#     from ` + schemaName + `."ACTIVITY" a
-#   ) as ac ON ac.ENGAGEMENTID  = e."ID"
-#   GROUP BY e."ID" ) as w `
-
-#   let queryFilter = "";
-#   queryFilter = queryFilter + " where ( ( w.REQUESTEDON >= '" + dateStart + "' and w.REQUESTEDON <= '" + dateEnd + "' ) or ( w.COMPLETEDON >= '" + dateStart + "' and w.COMPLETEDON <= '" + dateEnd + "' ) or ( w.LASTUPDATEDON >= '" + dateStart + "' and w.LASTUPDATEDON <= '" + dateEnd + "' ) ) "
-#   if (req.body.filters.status.toLowerCase().trim() != "all") {
-#     queryFilter = queryFilter + " and lower(w.STATUS) = '" + req.body.filters.status.toLowerCase().trim() + "' ";
-#   }
-#   if (req.body.filters.result.toLowerCase().trim() != "all") {
-#     queryFilter = queryFilter + " and lower(w.RESULT) = '" + req.body.filters.result.toLowerCase().trim() + "' ";
-#   }
-#   if (req.body.filters.category.toLowerCase().trim() != "all") {
-#     queryFilter = queryFilter + " and lower(w.CATEGORY) = '" + req.body.filters.category.toLowerCase().trim() + "' ";
-#   }
-#   if (req.body.filters.product.toLowerCase().trim() != "all") {
-#     queryFilter = queryFilter + " and lower(w.PRODUCT) = '" + req.body.filters.product.toLowerCase().trim() + "' ";
-#   }
-
-#   // let querySelect = " select w.status as STATUS, count(1) as COUNT from ";
-#   // let queryGrouping = " group by w.status "
-
-#   let queryStructures = [
-#     { name: "Status Distribution", querySelect: " select w.status as STATUS, count(1) as COUNT from ", queryGrouping: " group by w.status " },
-#     { name: "Result Distribution", querySelect: " select w.result as RESULT, count(1) as COUNT from ", queryGrouping: " group by w.result " },
-#     { name: "Category Distribution", querySelect: " select w.category as CATEGORY, count(1) as COUNT from ", queryGrouping: " group by w.category " },
-#     { name: "Market Distribution", querySelect: " select w.market as MARKET, count(1) as COUNT from ", queryGrouping: " group by w.market " },
-#     { name: "Customer Distribution", querySelect: " select w.customer as CUSTOMER, count(1) as COUNT from ", queryGrouping: " group by w.customer " }
-#   ]
 
 
 #   pool.connect((err, client, release) => {
