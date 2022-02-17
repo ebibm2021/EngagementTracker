@@ -9,4 +9,4 @@ app.add_url_rule('/api/filter_groups', view_func=analytics.getFilterGroups, meth
 app.add_url_rule('/api/search_analytics', view_func=analytics.searchAnalytics, methods=['POST'])
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
