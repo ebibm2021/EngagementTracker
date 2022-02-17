@@ -58,7 +58,7 @@ metadata:
   name: analytic-config
   labels:
     app: backend-analytics
-  data:
+data:
     host: postgres
     database: postgres
     user: postgres

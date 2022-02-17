@@ -15,7 +15,7 @@ spec:
         app: frontend-ui
     spec:
       containers:
-      - name: greet
+      - name: frontend-ui
         image: docker.io/sujoysett/engagement-tracker-frontend-ui:v1
         imagePullPolicy: Always
         envFrom:
