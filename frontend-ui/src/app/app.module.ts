@@ -29,6 +29,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import { DataExchangeComponent } from './data-exchange/data-exchange.component';
 import { TestComponent } from './test/test.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { AppService } from './app.service';
 
 
 const routes: Routes = [
@@ -41,6 +42,9 @@ const routes: Routes = [
   { path: '**', redirectTo: '/web/welcome', pathMatch: 'full' },
 ];
 
+export function init_app(appService: AppService) {
+  return () => appService.load();
+}
 @NgModule({
   declarations: [
     AppComponent,
