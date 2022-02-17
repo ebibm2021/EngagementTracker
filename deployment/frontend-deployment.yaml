@@ -18,6 +18,10 @@ spec:
       - name: greet
         image: docker.io/sujoysett/engagement-tracker-frontend-ui:v1
         imagePullPolicy: Always
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "envsubst < /usr/share/nginx/html/assets/env.template.js > /usr/share/nginx/html/assets/env.js"]
         ports:
           - containerPort: 8091
         resources:
@@ -27,6 +31,18 @@ spec:
           requests:
             cpu: 250m
             memory: 64Mi
+
+---
+
+apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: frontend-config
+    labels:
+      app: frontend-ui
+  data:
+    BACKEND_CORE_URL: http://backend-ui-service
+    BACKEND_ANALYTICS_URL: http://backend-ui-service
 
 ---
 
