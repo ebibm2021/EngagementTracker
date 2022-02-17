@@ -1,14 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from './../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ActivityService {
 
-  private activityAPIUrl = '/api/activity';
-  private activitiesAPIUrl = '/api/activities';
+  private activityAPIUrl = environment.backendCoreUrl + '/api/activity';
+  private activitiesAPIUrl = environment.backendCoreUrl + '/api/activities';
 	
   constructor(private http: HttpClient) { }
   

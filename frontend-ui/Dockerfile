@@ -5,7 +5,7 @@ COPY package*.json /app/
 RUN npm cache clean --force
 RUN npm install
 COPY ./ /app/
-RUN node_modules/.bin/ng build -- --output-path=./dist
+RUN node_modules/.bin/ng build --configuration production --output-path=./dist
 
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM nginx:1.15
