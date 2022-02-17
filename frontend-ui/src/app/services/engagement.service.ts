@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from './../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EngagementService {
   
-  private engagementAPIUrl = '/api/engagement';
+  private engagementAPIUrl = environment.backendCoreUrl + '/api/engagement';
 
 	constructor(private http: HttpClient) { }
   

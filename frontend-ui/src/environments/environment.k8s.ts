@@ -4,8 +4,8 @@
 
 export const environment = {
   production: true,
-  backendCoreUrl: '${ENV_BACKEND_CORE_URI}',
-  backendAnalyticsUrl: '${ENV_BACKEND_ANALYTICS_URI}'
+  backendCoreUrl: window["env"].BACKEND_CORE_URL,
+  backendAnalyticsUrl: window["env"].BACKEND_ANALYTICS_URL
 };
 
 /*
