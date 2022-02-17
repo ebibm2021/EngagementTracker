@@ -1,0 +1,65 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend-analytics
+  labels:
+    app: backend-analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-analytics
+      tier: backend
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: backend-analytics
+        tier: backend
+        track: stable
+    spec:
+      containers:
+      - name: backend-analytics
+        image: docker.io/sujoysett/engagement-tracker-backend-analytics:v1
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: analytic-config
+        ports:
+          - containerPort: 5001
+        resources:
+          limits:
+            cpu: 250m
+            memory: 128Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-analytic-service
+spec:
+  selector:
+    app: backend-analytics
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5001
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: analytic-config
+  labels:
+    app: backend-analytics
+  data:
+    host: postgres
+    database: postgres
+    user: postgres
+    password: postgres
