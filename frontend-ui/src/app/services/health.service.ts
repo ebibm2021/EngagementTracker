@@ -13,8 +13,8 @@ export class HealthService {
   analyticsHealthAPIUrl:string;
 
   constructor(private http: HttpClient,private appService: AppService) { 
-    this.coreHealthAPIUrl = this.appService.settings.backendCoreUrl + '/api/health';
-    this.analyticsHealthAPIUrl = this.appService.settings.backendAnalyticsUrl + '/api/health';
+    this.coreHealthAPIUrl = this.appService.settings.BACKEND_CORE_URL + '/api/health';
+    this.analyticsHealthAPIUrl = this.appService.settings.BACKEND_ANALYTICS_URL + '/api/health';
    }
 
   getCoreApiHealth(): Observable<any> {

@@ -11,8 +11,8 @@ export class ActivityService {
   activitiesAPIUrl:string
 	
   constructor(private http: HttpClient,private appService: AppService) { 
-    this.activityAPIUrl = this.appService.settings.backendCoreUrl + '/api/activity';
-    this.activitiesAPIUrl = this.appService.settings.backendCoreUrl + '/api/activities';
+    this.activityAPIUrl = this.appService.settings.BACKEND_CORE_URL + '/api/activity';
+    this.activitiesAPIUrl = this.appService.settings.BACKEND_CORE_URL + '/api/activities';
   }
   
   getActivity(id): Observable<any> {

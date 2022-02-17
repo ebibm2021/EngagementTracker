@@ -13,8 +13,8 @@ export class FilterService {
   analyticsAPIUrl :string;
 
   constructor(private http: HttpClient,private appService: AppService) { 
-    this.filterAPIUrl = this.appService.settings.backendAnalyticsUrl + '/api/filter_groups';
-    this.analyticsAPIUrl = this.appService.settings.backendAnalyticsUrl + '/api/search_analytics';
+    this.filterAPIUrl = this.appService.settings.BACKEND_ANALYTICS_URL + '/api/filter_groups';
+    this.analyticsAPIUrl = this.appService.settings.BACKEND_ANALYTICS_URL + '/api/search_analytics';
    }
 
   getFilterGroups(): Observable<any> {

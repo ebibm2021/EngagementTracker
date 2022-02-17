@@ -12,7 +12,7 @@ export class EngagementService {
   engagementAPIUrl:string;
 
   constructor(private http: HttpClient,private appService: AppService) { 
-    this.engagementAPIUrl = this.appService.settings.backendCoreUrl + '/api/engagement';
+    this.engagementAPIUrl = this.appService.settings.BACKEND_CORE_URL + '/api/engagement';
    }
   getEngagement(): Observable<any> {
     return this.http.get(this.engagementAPIUrl, {});
