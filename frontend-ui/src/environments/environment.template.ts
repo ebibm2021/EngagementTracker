@@ -3,9 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  backendCoreUrl: "http://localhost:3000",
-  backendAnalyticsUrl: "http://localhost:5000"
+  production: true,
+  backendCoreUrl: '${ENV_BACKEND_CORE_URI}',
+  backendAnalyticsUrl: '${ENV_BACKEND_ANALYTICS_URI}'
 };
 
 /*
