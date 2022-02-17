@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AppService } from '../app.service';
 import { environment } from './../../environments/environment';
 
 @Injectable({
@@ -8,12 +9,13 @@ import { environment } from './../../environments/environment';
 })
 export class FilterService {
 
-  private filterAPIUrl = environment.backendAnalyticsUrl + '/api/filter_groups';
-  private analyticsAPIUrl = environment.backendAnalyticsUrl + '/api/search_analytics';
+  filterAPIUrl:string;
+  analyticsAPIUrl :string;
 
-  constructor(
-    private http: HttpClient
-  ) { }
+  constructor(private http: HttpClient,private appService: AppService) { 
+    this.filterAPIUrl = this.appService.settings.backendAnalyticsUrl + '/api/filter_groups';
+    this.analyticsAPIUrl = this.appService.settings.backendAnalyticsUrl + '/api/search_analytics';
+   }
 
   getFilterGroups(): Observable<any> {
     return this.http.get(this.filterAPIUrl, {});

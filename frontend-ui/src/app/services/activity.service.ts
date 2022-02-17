@@ -1,17 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from './../../environments/environment';
+import { AppService } from '../app.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ActivityService {
-
-  private activityAPIUrl = environment.backendCoreUrl + '/api/activity';
-  private activitiesAPIUrl = environment.backendCoreUrl + '/api/activities';
+  activityAPIUrl:string;
+  activitiesAPIUrl:string
 	
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,private appService: AppService) { 
+    this.activityAPIUrl = this.appService.settings.backendCoreUrl + '/api/activity';
+    this.activitiesAPIUrl = this.appService.settings.backendCoreUrl + '/api/activities';
+  }
   
   getActivity(id): Observable<any> {
     return this.http.get(this.activityAPIUrl + '?engagement_id='+ id, {});

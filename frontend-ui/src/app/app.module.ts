@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 import { EngagementFormComponent } from './engagement-form/engagement-form.component';
@@ -84,7 +84,12 @@ export function init_app(appService: AppService) {
       echarts: () => import('echarts')
     })
   ],
-  providers: [],
+  providers: [{ 
+    provide: APP_INITIALIZER, 
+    useFactory: init_app, 
+    deps: [ AppService ], 
+    multi: true
+  }],
   bootstrap: [AppComponent],
   exports: [
     RouterModule,

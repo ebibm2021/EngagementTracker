@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AppService } from '../app.service';
 import { environment } from './../../environments/environment';
 
 @Injectable({
@@ -8,10 +9,11 @@ import { environment } from './../../environments/environment';
 })
 export class EngagementService {
   
-  private engagementAPIUrl = environment.backendCoreUrl + '/api/engagement';
+  engagementAPIUrl:string;
 
-	constructor(private http: HttpClient) { }
-  
+  constructor(private http: HttpClient,private appService: AppService) { 
+    this.engagementAPIUrl = this.appService.settings.backendCoreUrl + '/api/engagement';
+   }
   getEngagement(): Observable<any> {
     return this.http.get(this.engagementAPIUrl, {});
   }
