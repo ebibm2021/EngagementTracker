@@ -24,7 +24,7 @@ spec:
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
-            name: postgres-config
+            name: db-config
         ports:
           - containerPort: 8080
         resources:
@@ -49,3 +49,19 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
+
+---
+
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: db-config
+      labels:
+        app: backend-core
+    data:
+      POSTGRESQL_DB: postgres
+      POSTGRESQL_HOST: 9.30.44.117
+      POSTGRESQL_PASSWORD: Passw0rd
+      POSTGRESQL_PORT: '5432'
+      POSTGRESQL_SCHEMA: public
+      POSTGRESQL_USER: admin

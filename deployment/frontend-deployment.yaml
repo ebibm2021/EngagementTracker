@@ -14,15 +14,19 @@ spec:
       labels:
         app: frontend-ui
     spec:
+      volumes:
+      - name: frontend-volume
+        configMap:
+          name: frontend-config
       containers:
       - name: frontend-ui
-        image: docker.io/sujoysett/engagement-tracker-frontend-ui:v1
+        image: docker.io/shnaray4/engagement-tracker-frontend-ui:v1
         imagePullPolicy: Always
-        envFrom:
-        - configMapRef:
-            name: frontend-config
         ports:
           - containerPort: 8091
+        volumeMounts:
+          - name: frontend-volume
+            mountPath: /usr/share/nginx/html/assets/
         resources:
           limits:
             cpu: 250m
@@ -34,14 +38,17 @@ spec:
 ---
 
 apiVersion: v1
-  kind: ConfigMap
-  metadata:
-    name: frontend-config
-    labels:
-      app: frontend-ui
-  data:
-    BACKEND_CORE_URL: http://analytic-route-test-sample.apps.sample-app.cp.fyre.ibm.com
-    BACKEND_ANALYTICS_URL: http://backend-route-test-sample.apps.sample-app.cp.fyre.ibm.com
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  labels:
+    app: frontend-ui
+data:
+  config.json: |-
+    {
+      "BACKEND_ANALYTICS_URL": "http://analytic-route-test-sample.apps.sample-app.cp.fyre.ibm.com",
+      "BACKEND_CORE_URL": "http://backend-route-test-sample.apps.sample-app.cp.fyre.ibm.com"
+    }
 
 ---
 
