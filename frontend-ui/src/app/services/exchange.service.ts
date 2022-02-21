@@ -144,12 +144,23 @@ export class ExchangeService {
     })
   }
   formatData1(key: string, thisDataUnit: any): any {
+    var newDataUnit = "";
     if (key === 'activitydata') {
-      if (thisDataUnit != undefined && thisDataUnit != null) {
-        thisDataUnit = thisDataUnit.replaceAll('$', '\n')
+      console.log(thisDataUnit)
+      if (thisDataUnit != undefined && thisDataUnit != null ) {
+        if (typeof thisDataUnit === 'string' || thisDataUnit instanceof String) {
+          newDataUnit = thisDataUnit.replaceAll('$', '\n')
+        } else if (Array.isArray(thisDataUnit)) {
+          for (var i = 0; i < thisDataUnit.length; i++) {
+            newDataUnit = newDataUnit + thisDataUnit[i] + "\n";
+          }
+        }
       }
     }
-    return thisDataUnit;
+    else {
+      newDataUnit = thisDataUnit;
+    }
+    return newDataUnit;
   }
 
   formatData2(activityUnits: any): any {
