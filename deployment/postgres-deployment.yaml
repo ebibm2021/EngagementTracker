@@ -37,9 +37,6 @@ spec:
       POSTGRES_DB: postgresdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRESQL_HOST: postgres
-      POSTGRESQL_PORT: "5432"
-      POSTGRESQL_SCHEMA: public
       PGDATA: /var/lib/postgresql/data/pgdata
 ---
     apiVersion: v1

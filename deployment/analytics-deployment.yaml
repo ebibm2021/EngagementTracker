@@ -59,7 +59,7 @@ metadata:
   labels:
     app: backend-analytics
 data:
-    host: postgres
+    host: 9.30.44.117
     database: postgres
-    user: postgres
-    password: postgres
+    user: admin 
+    password: Passw0rd

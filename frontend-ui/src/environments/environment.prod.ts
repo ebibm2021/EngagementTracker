@@ -3,9 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: true,
-  backendCoreUrl: window["env"].BACKEND_CORE_URL,
-  backendAnalyticsUrl: window["env"].BACKEND_ANALYTICS_URL
+  production: true
 };
 
 /*

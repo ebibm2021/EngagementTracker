@@ -1,0 +1,5 @@
+{
+    "production": false,
+    "BACKEND_CORE_URL": "http://localhost:8080",
+    "BACKEND_ANALYTICS_URL": "http://localhost:5010"
+}
