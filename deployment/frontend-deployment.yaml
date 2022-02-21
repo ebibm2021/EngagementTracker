@@ -20,7 +20,7 @@ spec:
           name: frontend-config
       containers:
       - name: frontend-ui
-        image: docker.io/shnaray4/engagement-tracker-frontend-ui:v1
+        image: docker.io/sujoysett/engagement-tracker-frontend-ui:v1
         imagePullPolicy: Always
         ports:
           - containerPort: 8091
