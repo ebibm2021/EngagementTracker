@@ -4,6 +4,7 @@ import * as fs from 'file-saver';
 import * as moment from 'moment';
 import * as Excel from 'exceljs/dist/exceljs.min.js';
 import { HttpClient } from '@angular/common/http';
+import { AppService } from '../app.service';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +73,7 @@ export class ExchangeService {
   }]
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient, private appService: AppService
   ) { }
 
   generateExcel(dataJson, title) {
@@ -242,6 +243,6 @@ export class ExchangeService {
   }
 
   public uploadEngagementActivityData(data) {
-      return this.http.post('/api/bulk-upload', data);
+      return this.http.post(this.appService.settings.BACKEND_CORE_URL + '/api/bulk-upload', data);
   }
 }
