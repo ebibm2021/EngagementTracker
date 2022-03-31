@@ -1,0 +1,104 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend-analytics
+  labels:
+    app: backend-analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-analytics
+      tier: backend
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: backend-analytics
+        tier: backend
+        track: stable
+    spec:
+      containers:
+      - name: backend-analytics
+        image: docker.io/sujoysett/engagement-tracker-backend-analytics:v1
+        imagePullPolicy: Always
+        env:
+        - name: host
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: analytic-config
+              # Specify the key associated with the value
+              key: host
+        - name: database
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: analytic-config
+              # Specify the key associated with the value
+              key: database              
+        - name: user
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: analytic-config
+              # Specify the key associated with the value
+              key: user
+        - name: password
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: analytic-config
+              # Specify the key associated with the value
+              key: password
+        - name: port
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: analytic-config
+              # Specify the key associated with the value
+              key: port       
+        - name: INSTANA_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        ports:
+          - containerPort: 5010
+        resources:
+          limits:
+            cpu: 250m
+            memory: 128Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-analytics-service
+spec:
+  selector:
+    app: backend-analytics
+    tier: backend
+  ports:
+    - port: 80
+      targetPort: 5010
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: analytic-config
+  labels:
+    app: backend-analytics
+data:
+    host: 159.122.181.231
+    database: postgres
+    user: postgres 
+    password: *******
+    port: "30432"

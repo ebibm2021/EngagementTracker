@@ -1,0 +1,111 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend-core
+  labels:
+    app: backend-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-core
+      tier: backend
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: backend-core
+        tier: backend
+        track: stable
+    spec:
+      containers:
+      - name: backend-core
+        image: docker.io/sujoysett/engagement-tracker-backend-core:v1
+        imagePullPolicy: Always
+        env:
+        - name: POSTGRESQL_DB
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: db-config
+              # Specify the key associated with the value
+              key: POSTGRESQL_DB
+        - name: POSTGRESQL_HOST
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: db-config
+              # Specify the key associated with the value
+              key: POSTGRESQL_HOST              
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: db-config
+              # Specify the key associated with the value
+              key: POSTGRESQL_PASSWORD
+        - name: POSTGRESQL_PORT
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: db-config
+              # Specify the key associated with the value
+              key: POSTGRESQL_PORT
+        - name: POSTGRESQL_SCHEMA
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: db-config
+              # Specify the key associated with the value
+              key: POSTGRESQL_SCHEMA      
+        - name: POSTGRESQL_USER
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: db-config
+              # Specify the key associated with the value
+              key: POSTGRESQL_USER       
+        - name: INSTANA_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            cpu: 250m
+            memory: 128Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-ui-service
+spec:
+  selector:
+    app: backend-core
+    tier: backend
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
+---
+
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: db-config
+      labels:
+        app: backend-core
+    data:
+      POSTGRESQL_DB: postgres
+      POSTGRESQL_HOST: 159.122.181.231
+      POSTGRESQL_PASSWORD: *******
+      POSTGRESQL_PORT: '30432'
+      POSTGRESQL_SCHEMA: public
+      POSTGRESQL_USER: postgres

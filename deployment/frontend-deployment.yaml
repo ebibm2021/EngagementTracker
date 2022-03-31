@@ -46,8 +46,8 @@ metadata:
 data:
   config.json: |-
     {
-      "BACKEND_ANALYTICS_URL": "http://analytic-route-test-sample.apps.sample-app.cp.fyre.ibm.com",
-      "BACKEND_CORE_URL": "http://backend-route-test-sample.apps.sample-app.cp.fyre.ibm.com"
+      "BACKEND_ANALYTICS_URL": "http://c4212fa8-us-south.lb.appdomain.cloud",
+      "BACKEND_CORE_URL": "http://2f054e4a-us-south.lb.appdomain.cloud"
     }
 
 ---
