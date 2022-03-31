@@ -1,5 +1,7 @@
 FROM node:14
 
+ENV INSTANA_AUTO_PROFILE true
+
 WORKDIR /app
 COPY package*.json ./
 
