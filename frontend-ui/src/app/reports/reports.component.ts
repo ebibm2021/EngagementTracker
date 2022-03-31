@@ -58,7 +58,7 @@ export class ReportsComponent implements OnInit {
 
   downloadReport(reportUnit) {
     this.loaderService.startLoading();
-    setInterval(() => {
+    setTimeout(() => {
       this.reportService.generateExcel({}, reportUnit.fileName);
       this.loaderService.stopLoading();
     }, 4000);
