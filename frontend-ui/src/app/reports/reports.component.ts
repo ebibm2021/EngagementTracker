@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CustomAlertService } from '../services/custom-alert.service';
 import { LoaderService } from '../services/loader.service';
+import { ReportService } from '../services/report.service';
 import { StorageService } from '../services/storage.service';
 import { UtilityService } from '../services/utility.service';
 
@@ -15,7 +16,8 @@ export class ReportsComponent implements OnInit {
     private utilityService: UtilityService,
     private customAlertService: CustomAlertService,
     private storageService: StorageService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private reportService: ReportService
   ) { }
 
   public reportUnits = [
@@ -57,14 +59,15 @@ export class ReportsComponent implements OnInit {
   downloadReport(reportUnit) {
     this.loaderService.startLoading();
     setInterval(() => {
+      this.reportService.generateExcel({}, reportUnit.fileName);
       this.loaderService.stopLoading();
     }, 4000);
   }
   showProgress(reportUnit) {
-    this.customAlertService.showAlert("warn", "Report generation in progress.");
+    this.customAlertService.showAlert("warn", "Report " + reportUnit.fileName + " - generation in progress.");
   }
   showNotAvailable(reportUnit) {
-    this.customAlertService.showAlert("warn", "This report is presently unavailable or withdrawn.");
+    this.customAlertService.showAlert("warn", "This report " + reportUnit.fileName + " is presently unavailable or withdrawn.");
   }
 
 }
