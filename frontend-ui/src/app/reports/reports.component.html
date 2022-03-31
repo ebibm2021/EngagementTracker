@@ -5,7 +5,7 @@
             <span class="report-unit-span" style="color: white; background-color: black;">{{reportUnit.reportGenerateDate}}</span>
             <span class="report-unit-span">{{reportUnit.fileName}}</span>
             <span class="report-unit-span">
-                <span *ngIf="reportUnit.status === 2"><i class="fa fa-download" (click)="(reportUnit)"></i></span>
+                <span *ngIf="reportUnit.status === 2"><i class="fa fa-download" (click)="downloadReport(reportUnit)"></i></span>
                 <span *ngIf="reportUnit.status === 1"><i class="fa fa-hourglass-half" (click)="showProgress(reportUnit)"></i></span>
                 <span *ngIf="reportUnit.status === 0"><i class="fa fa-exclamation-circle" (click)="showNotAvailable(reportUnit)"></i></span>
             </span>
