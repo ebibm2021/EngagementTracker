@@ -1,0 +1,25 @@
+.field {
+    margin: 10px;
+}
+
+.reports-form-container {
+    text-align: center;
+}
+
+.report-unit {
+    padding: 20px; 
+    border: 1px solid lightgrey;
+    width: fit-content;
+    display: inline-block;
+    border-radius: 10px;
+    margin: 5px 0px;
+}
+
+.report-unit-span {
+    padding: 0px 10px;
+}
+
+.wide-area {
+    min-width: 180px;
+    width: 80%;
+}
