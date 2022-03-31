@@ -24,5 +24,6 @@ def config():
     conf["host"]=os.environ.get("host")
     conf["database"]=os.environ.get("database")
     conf["user"]=os.environ.get("user")
-    conf["password"]=os.environ.get("password") 
+    conf["password"]=os.environ.get("password")
+    conf["port"]=os.environ.get("port")
     return conf
