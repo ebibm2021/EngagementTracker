@@ -46,7 +46,7 @@ metadata:
 data:
   config.json: |-
     {
-      "BACKEND_ANALYTICS_URL": "http://c4212fa8-us-south.lb.appdomain.cloud",
+      "BACKEND_ANALYTICS_URL": "http://57d02721-us-south.lb.appdomain.cloud:5010",
       "BACKEND_CORE_URL": "http://2f054e4a-us-south.lb.appdomain.cloud"
     }
 
