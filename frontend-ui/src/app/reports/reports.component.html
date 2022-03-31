@@ -5,15 +5,27 @@
         The performance of report generation depends on backend services.
     </div>
     <div style="padding: 20px;" style="text-align: center;">
-        <div *ngFor="let reportUnit of reportUnits" class="report-unit">
-            <span class="report-unit-span">{{reportUnit.reportName}}</span>
-            <span class="report-unit-span" style="color: white; background-color: black;">{{reportUnit.reportGenerateDate}}</span>
-            <span class="report-unit-span">{{reportUnit.fileName}}</span>
-            <span class="report-unit-span">
-                <span *ngIf="reportUnit.status === 2"><i class="fa fa-download" (click)="downloadReport(reportUnit)"></i></span>
-                <span *ngIf="reportUnit.status === 1"><i class="fa fa-hourglass-half" (click)="showProgress(reportUnit)"></i></span>
-                <span *ngIf="reportUnit.status === 0"><i class="fa fa-exclamation-circle" (click)="showNotAvailable(reportUnit)"></i></span>
-            </span>
-        </div>
+        <table style="display: inline-block;">
+            <thead>
+                <tr>
+                    <th>Report Name</th>
+                    <th>Report Date</th>
+                    <th>File Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let reportUnit of reportUnits" class="report-unit-tr">
+                    <td class="report-unit-td">{{reportUnit.reportName}}</td>
+                    <td class="report-unit-td" style="color: white; background-color: black;">{{reportUnit.reportGenerateDate}}</td>
+                    <td class="report-unit-td">{{reportUnit.fileName}}</td>
+                    <td class="report-unit-td">
+                        <span *ngIf="reportUnit.status === 2"><i class="fa fa-download" (click)="downloadReport(reportUnit)"></i></span>
+                        <span *ngIf="reportUnit.status === 1"><i class="fa fa-hourglass-half" (click)="showProgress(reportUnit)"></i></span>
+                        <span *ngIf="reportUnit.status === 0"><i class="fa fa-exclamation-circle" (click)="showNotAvailable(reportUnit)"></i></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>

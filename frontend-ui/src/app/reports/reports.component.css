@@ -6,20 +6,12 @@
     text-align: center;
 }
 
-.report-unit {
-    padding: 20px; 
-    border: 1px solid lightgrey;
-    width: fit-content;
-    display: inline-block;
-    border-radius: 10px;
-    margin: 5px 0px;
+
+.report-unit-tr {
+    padding: 10px;
 }
 
-.report-unit-span {
-    padding: 0px 10px;
-}
-
-.report-unit-span > span {
+.report-unit-tr > span {
     cursor: pointer;
 }
 
@@ -27,3 +19,7 @@
     min-width: 180px;
     width: 80%;
 }
+
+table, th, td {
+    border: 1px solid lightgrey;
+  }

@@ -23,31 +23,31 @@ export class ReportsComponent implements OnInit {
   public reportUnits = [
     {
       reportName: "Engagement Report - success scenario analysis across activity frequency and extent",
-      fileName: "ER-suc-act.pdf",
+      fileName: "ER-suc-act.xlsx",
       reportGenerateDate: "30 Nov 2021",
       status: 2
     },
     {
       reportName: "Engagement Summary - crowdsourced vs actualization information - 5 years",
-      fileName: "ES-CAI.pdf",
+      fileName: "ES-CAI.xlsx",
       reportGenerateDate: "15 Nov 2021",
       status: 2
     },
     {
       reportName: "Engagement Summary - crowdsourced vs actualization information - 2 years",
-      fileName: "ES-CAI-temp.pdf",
+      fileName: "ES-CAI-temp.xlsx",
       reportGenerateDate: "21 Aug 2021",
       status: 1
     },
     {
       reportName: "Activity distribution across sellers and geo",
-      fileName: "ACT_GEO.pdf",
+      fileName: "ACT_GEO.xlsx",
       reportGenerateDate: "21 Aug 2021",
       status: 0
     },
     {
       reportName: "Seller profile report distribution - Industry and Technology vertical",
-      fileName: "profile-snapshot.pdf",
+      fileName: "profile-snapshot.xlsx",
       reportGenerateDate: "18 October 2020",
       status: 0
     }
