@@ -6,11 +6,11 @@ import { LoaderService } from '../services/loader.service';
 import { StorageService } from '../services/storage.service';
 
 @Component({
-  selector: 'app-test',
-  templateUrl: './test.component.html',
-  styleUrls: ['./test.component.css']
+  selector: 'app-performance',
+  templateUrl: './performance.component.html',
+  styleUrls: ['./performance.component.css']
 })
-export class TestComponent implements OnInit {
+export class PerformanceComponent implements OnInit {
 
   constructor(
     private engagementService: EngagementService,

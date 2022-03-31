@@ -27,16 +27,18 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { DataExchangeComponent } from './data-exchange/data-exchange.component';
-import { TestComponent } from './test/test.component';
+import { PerformanceComponent } from './performance/performance.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { AppService } from './app.service';
+import { ReportsComponent } from './reports/reports.component';
 
 
 const routes: Routes = [
   {path:'web/welcome', component: WelcomeComponent},
   {path:'web/analytics', component: AnalyticDisplayComponent},
   {path:'web/data', component: DataDisplayComponent},
-  {path:'web/test', component: TestComponent},
+  {path:'web/reports', component: ReportsComponent},
+  {path:'web/performance', component: PerformanceComponent},
   { path: '', redirectTo: '/web/welcome', pathMatch: 'full' },
   { path: 'web', redirectTo: '/web/welcome', pathMatch: 'full' },
   { path: '**', redirectTo: '/web/welcome', pathMatch: 'full' },
@@ -56,8 +58,9 @@ export function init_app(appService: AppService) {
     AnalyticDisplayComponent,
     LoaderComponent,
     DataExchangeComponent,
-    TestComponent,
-    WelcomeComponent
+    PerformanceComponent,
+    WelcomeComponent,
+    ReportsComponent
   ],
   imports: [
     BrowserModule,
