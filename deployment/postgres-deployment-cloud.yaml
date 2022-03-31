@@ -36,7 +36,7 @@ spec:
     data:
       POSTGRES_DB: postgresdb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: *******
       POSTGRESQL_HOST: postgres
       POSTGRESQL_PORT: "30432"
       POSTGRESQL_SCHEMA: public
