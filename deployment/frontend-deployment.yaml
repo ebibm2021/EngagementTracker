@@ -26,7 +26,7 @@ spec:
           - containerPort: 8091
         volumeMounts:
           - name: frontend-volume
-            mountPath: /usr/share/nginx/html/assets/
+            mountPath: /usr/share/nginx/html/assets/config/
         resources:
           limits:
             cpu: 250m

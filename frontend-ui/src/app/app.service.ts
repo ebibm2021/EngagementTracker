@@ -9,7 +9,7 @@ export class AppService {
 
   constructor(private http: HttpClient) { }
 
-  configUrl = 'assets/config.json';
+  configUrl = 'assets/config/config.json';
   private configSettings: any = null;
 
   get settings() {
