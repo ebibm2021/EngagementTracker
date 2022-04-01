@@ -22,6 +22,12 @@ export class ReportsComponent implements OnInit {
 
   public reportUnits = [
     {
+      reportName: "Activity Report - SME efforts in Geography and Technology Stack",
+      fileName: "AR-sme-act-feb-22.xlsx",
+      reportGenerateDate: "08 Feb 2022",
+      status: 2
+    },
+    {
       reportName: "Engagement Report - success scenario analysis across activity frequency and extent",
       fileName: "ER-suc-act.xlsx",
       reportGenerateDate: "30 Nov 2021",
