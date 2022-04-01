@@ -100,5 +100,5 @@ data:
     host: 159.122.181.231
     database: postgres
     user: postgres 
-    password: postgres
+    password: *******
     port: "30432"
