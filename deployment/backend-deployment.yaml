@@ -47,9 +47,10 @@ spec:
     tier: backend
   ports:
     - protocol: TCP
-      port: 80
+      port: 8080
       targetPort: 8080
-
+      nodePort: 30435
+  type: NodePort
 ---
 
     apiVersion: v1
@@ -61,7 +62,7 @@ spec:
     data:
       POSTGRESQL_DB: postgres
       POSTGRESQL_HOST: 159.122.181.231
-      POSTGRESQL_PASSWORD: ********
+      POSTGRESQL_PASSWORD: ******
       POSTGRESQL_PORT: '30432'
       POSTGRESQL_SCHEMA: public
       POSTGRESQL_USER: postgres

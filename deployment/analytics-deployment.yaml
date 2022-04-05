@@ -26,7 +26,7 @@ spec:
         - configMapRef:
             name: analytic-config
         ports:
-          - containerPort: 8080
+          - containerPort: 5010
         resources:
           limits:
             cpu: 250m
@@ -47,8 +47,10 @@ spec:
     tier: backend
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 8080
+      port: 5010
+      targetPort: 5010
+      nodePort: 30434
+  type: NodePort
 
 ---
 
@@ -59,7 +61,8 @@ metadata:
   labels:
     app: backend-analytics
 data:
-    host: 10.144.216.96
+    host: 159.122.181.231
     database: postgres
     user: postgres 
     password: *******
+    port: "30432"
