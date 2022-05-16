@@ -61,8 +61,8 @@ spec:
         app: backend-core
     data:
       POSTGRESQL_DB: postgres
-      POSTGRESQL_HOST: 159.122.181.231
+      POSTGRESQL_HOST: 52.118.184.180
       POSTGRESQL_PASSWORD: ******
-      POSTGRESQL_PORT: '30432'
+      POSTGRESQL_PORT: '5432'
       POSTGRESQL_SCHEMA: public
       POSTGRESQL_USER: postgres

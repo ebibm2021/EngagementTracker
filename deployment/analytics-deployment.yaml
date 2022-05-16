@@ -61,8 +61,8 @@ metadata:
   labels:
     app: backend-analytics
 data:
-    host: 159.122.181.231
+    host: 52.118.184.180
     database: postgres
     user: postgres 
     password: *******
-    port: "30432"
+    port: "5432"
